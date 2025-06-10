@@ -1,31 +1,63 @@
-import { useState } from 'react';
-import { voting_app_backend } from 'declarations/voting-app-backend';
+import { AuthClient } from "@dfinity/auth-client";
+import { useState, useEffect } from "react";
 
-function App() {
-  const [greeting, setGreeting] = useState('');
+export default function App() {
+  const [authClient, setAuthClient] = useState(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [principal, setPrincipal] = useState("");
+  const [showAutoLogin, setShowAutoLogin] = useState(false);
+  const [tempPrincipal, setTempPrincipal] = useState("");
 
-  function handleSubmit(event) {
-    event.preventDefault();
-    const name = event.target.elements.name.value;
-    voting_app_backend.greet(name).then((greeting) => {
-      setGreeting(greeting);
+  useEffect(() => {
+    AuthClient.create().then(async (client) => {
+      setAuthClient(client);
+      const authenticated = await client.isAuthenticated();
+      if (authenticated) {
+        setShowAutoLogin(true);
+        setTempPrincipal(client.getIdentity().getPrincipal().toText());
+      }
     });
-    return false;
-  }
+  }, []);
+
+  const continueWithSession = () => {
+    setIsAuthenticated(true);
+    setPrincipal(tempPrincipal);
+  };
+
+  const login = async () => {
+    await authClient.login({
+      identityProvider: "http://v27v7-7x777-77774-qaaha-cai.localhost:4943",
+      onSuccess: () => {
+        setIsAuthenticated(true);
+        setPrincipal(authClient.getIdentity().getPrincipal().toText());
+      },
+    });
+  };
+
+  const logout = () => {
+    authClient.logout();
+    setIsAuthenticated(false);
+    setPrincipal("");
+    setShowAutoLogin(false);
+    setTempPrincipal("");
+  };
 
   return (
-    <main>
-      <img src="/logo2.svg" alt="DFINITY logo" />
-      <br />
-      <br />
-      <form action="#" onSubmit={handleSubmit}>
-        <label htmlFor="name">Enter your name: &nbsp;</label>
-        <input id="name" alt="Name" type="text" />
-        <button type="submit">Click Me!</button>
-      </form>
-      <section id="greeting">{greeting}</section>
-    </main>
+    <div>
+      <h1>🔐 ICP Login Demo</h1>
+
+      {isAuthenticated ? (
+        <>
+          <p>✅ Logged in as: {principal}</p>
+          <button onClick={logout}>Logout</button>
+        </>
+      ) : showAutoLogin ? (
+        <button onClick={continueWithSession}>
+          Continue as {tempPrincipal}
+        </button>
+      ) : (
+        <button onClick={login}>Login with Internet Identity</button>
+      )}
+    </div>
   );
 }
-
-export default App;

@@ -21,32 +21,18 @@ thread_local! {
 }
 
 #[update]
-fn add_candidate(name: String) {
+fn vote(name: String, voter_id: String) -> String {
     STATE.with(|state| {
         let mut s = state.borrow_mut();
-        s.candidates.insert(name.clone(), Candidate { name, votes: 0 });
-    });
-}
 
-#[update]
-fn vote(name: String) -> String {
-    let voter = caller().to_string();
-    println!("📥 Vote diterima dari: {}", voter);
-
-    STATE.with(|state| {
-        let mut s = state.borrow_mut();
-        println!("📊 Kandidat sekarang: {:?}", s.candidates);
-
-        if s.voters.contains(&voter) {
-            println!("⚠️ Pemilih {} sudah voting", voter);
+        if s.voters.contains(&voter_id) {
             return "Sudah voting!".to_string();
         }
 
         match s.candidates.get_mut(&name) {
             Some(candidate) => {
                 candidate.votes += 1;
-                s.voters.push(voter);
-                println!("✅ Vote untuk {} berhasil", name);
+                s.voters.push(voter_id);
                 "Vote berhasil!".to_string()
             },
             None => "Kandidat tidak ditemukan.".to_string()
