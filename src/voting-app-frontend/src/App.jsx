@@ -1,63 +1,151 @@
+import React, { useState, useEffect } from "react";
 import { AuthClient } from "@dfinity/auth-client";
-import { useState, useEffect } from "react";
+import { Actor, HttpAgent } from "@dfinity/agent";
+import { idlFactory, canisterId } from "declarations/voting-app-backend";
 
 export default function App() {
   const [authClient, setAuthClient] = useState(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [backend, setBackend] = useState(null);
   const [principal, setPrincipal] = useState("");
-  const [showAutoLogin, setShowAutoLogin] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [showContinue, setShowContinue] = useState(false);
   const [tempPrincipal, setTempPrincipal] = useState("");
 
+  // Inisialisasi Auth & Actor
   useEffect(() => {
     AuthClient.create().then(async (client) => {
       setAuthClient(client);
-      const authenticated = await client.isAuthenticated();
-      if (authenticated) {
-        setShowAutoLogin(true);
-        setTempPrincipal(client.getIdentity().getPrincipal().toText());
+      const auth = await client.isAuthenticated();
+      if (auth) {
+        const p = client.getIdentity().getPrincipal().toText();
+        setTempPrincipal(p);
+        setShowContinue(true);
       }
     });
   }, []);
 
-  const continueWithSession = () => {
-    setIsAuthenticated(true);
-    setPrincipal(tempPrincipal);
+  const initActor = (identity) => {
+    const agent = new HttpAgent({ identity });
+    if (process.env.DFX_NETWORK === "local") agent.fetchRootKey();
+    const actor = Actor.createActor(idlFactory, { agent, canisterId });
+    console.log("Actor created:", actor);
+    setBackend(actor);
   };
+
+
+  useEffect(() => {
+    if (isAuthenticated && backend) {
+      console.log("refreshResults triggered");
+      refreshResults();
+    }
+  }, [isAuthenticated, backend]);
+  
+  
+
+  const continueWithSession = () => {
+    setPrincipal(tempPrincipal);
+    setIsAuthenticated(true);
+    initActor(authClient.getIdentity());
+  };
+
+  // const login = async () => {
+  //   await authClient.login({
+  //     identityProvider:
+  //       "http://v27v7-7x777-77774-qaaha-cai.localhost:4943",
+  //     onSuccess: () => {
+  //       const p = authClient.getIdentity().getPrincipal().toText();
+  //       setPrincipal(p);
+  //       setIsAuthenticated(true);
+  //       initActor(authClient.getIdentity());
+  //     },
+  //   });
+  // };
+
 
   const login = async () => {
     await authClient.login({
       identityProvider: "http://v27v7-7x777-77774-qaaha-cai.localhost:4943",
-      onSuccess: () => {
+      onSuccess: async () => {
+        const p = authClient.getIdentity().getPrincipal().toText();
+        setPrincipal(p);
         setIsAuthenticated(true);
-        setPrincipal(authClient.getIdentity().getPrincipal().toText());
+        initActor(authClient.getIdentity());
       },
     });
   };
+  
 
-  const logout = () => {
-    authClient.logout();
+  const logout = async () => {
+    await authClient.logout();
     setIsAuthenticated(false);
     setPrincipal("");
-    setShowAutoLogin(false);
+    setShowContinue(false);
     setTempPrincipal("");
+    setBackend(null);
   };
+
+  const [results, setResults] = useState([]);
+  const [voteMsg, setVoteMsg] = useState("");
+
+  const refreshResults = async () => {
+    if (backend) {
+      const res = await backend.get_results();
+      console.log("RAW result from backend:", res);
+      if (res.length > 0) {
+        console.log("First item keys:", Object.keys(res[0]));
+      }
+      setResults(res);
+    }
+  };
+  
+
+  const voteFor = async (name) => {
+    if (!isAuthenticated) return alert("Login dulu!");
+    await backend.add_candidate("bawang goreng");
+    await backend.add_candidate("bawang putih");
+
+    const msg = await backend.vote(name, principal);
+    setVoteMsg(msg);
+    refreshResults();
+  };
+
+  useEffect(() => {
+    if (isAuthenticated && backend) refreshResults();
+  }, [isAuthenticated, backend]);
+
+
+  console.log("results", results);
+  
 
   return (
     <div>
-      <h1>🔐 ICP Login Demo</h1>
+      <h1>🗳️ Voting App + ICP Login</h1>
 
       {isAuthenticated ? (
         <>
-          <p>✅ Logged in as: {principal}</p>
+          <p>🔐 Logged in as: {principal}</p>
           <button onClick={logout}>Logout</button>
         </>
-      ) : showAutoLogin ? (
+      ) : showContinue ? (
         <button onClick={continueWithSession}>
           Continue as {tempPrincipal}
         </button>
       ) : (
         <button onClick={login}>Login with Internet Identity</button>
       )}
+
+      <hr />
+
+      <ul>
+        {results.map((c) => (
+          <li key={c.name}>
+            {c.name}: {c.votes} votes{" "}
+            <button onClick={() => voteFor(c.name)}>Vote</button>
+          </li>
+        ))}
+      </ul>
+
+      {voteMsg && <p>{voteMsg}</p>}
     </div>
   );
 }

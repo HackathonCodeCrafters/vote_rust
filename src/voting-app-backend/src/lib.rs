@@ -5,10 +5,12 @@ use serde::{Deserialize, Serialize};
 use ic_cdk::api::caller;
 
 #[derive(Clone, Debug, CandidType, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
 struct Candidate {
     name: String,
     votes: u32,
 }
+
 
 #[derive(Default)]
 struct State {
@@ -39,6 +41,27 @@ fn vote(name: String, voter_id: String) -> String {
         }
     })
 }
+
+
+#[update]
+fn add_candidate(name: String) -> String {
+    STATE.with(|state| {
+        let mut s = state.borrow_mut();
+        if s.candidates.contains_key(&name) {
+            return format!("Kandidat '{}' sudah ada.", name);
+        }
+        s.candidates.insert(
+            name.clone(),
+            Candidate {
+                name: name.clone(),
+                votes: 0,
+            },
+        );
+        format!("Kandidat '{}' ditambahkan.", name)
+    })
+}
+
+
 
 
 #[query]

@@ -1,3 +1,6 @@
 service : {
     "greet": (text) -> (text) query;
+    "add_candidate": (text) -> (text);
+    "vote": (text, text) -> (text);
+    "get_results": () -> (vec record { name: text; votes: nat32 });
 }

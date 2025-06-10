@@ -7,6 +7,13 @@ import dotenv from 'dotenv';
 dotenv.config({ path: '../../.env' });
 
 export default defineConfig({
+  css: {
+    preprocessorOptions: {
+      scss: {
+        api: 'modern-compiler'
+      }
+    }
+  },
   build: {
     emptyOutDir: true,
   },
