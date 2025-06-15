@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
-import { AuthClient } from "@dfinity/auth-client";
 import { Actor, HttpAgent } from "@dfinity/agent";
-import { idlFactory, canisterId } from "declarations/voting-app-backend";
+import { AuthClient } from "@dfinity/auth-client";
+import { canisterId, idlFactory } from "declarations/voting-app-backend";
+import { useEffect, useState } from "react";
 
 export default function App() {
   const [authClient, setAuthClient] = useState(null);
@@ -32,15 +32,12 @@ export default function App() {
     setBackend(actor);
   };
 
-
   useEffect(() => {
     if (isAuthenticated && backend) {
       console.log("refreshResults triggered");
       refreshResults();
     }
   }, [isAuthenticated, backend]);
-  
-  
 
   const continueWithSession = () => {
     setPrincipal(tempPrincipal);
@@ -61,10 +58,9 @@ export default function App() {
   //   });
   // };
 
-
   const login = async () => {
     await authClient.login({
-      identityProvider: "http://v27v7-7x777-77774-qaaha-cai.localhost:4943",
+      identityProvider: "http://vt46d-j7777-77774-qaagq-cai.localhost:4943",
       onSuccess: async () => {
         const p = authClient.getIdentity().getPrincipal().toText();
         setPrincipal(p);
@@ -73,7 +69,6 @@ export default function App() {
       },
     });
   };
-  
 
   const logout = async () => {
     await authClient.logout();
@@ -97,7 +92,6 @@ export default function App() {
       setResults(res);
     }
   };
-  
 
   const voteFor = async (name) => {
     if (!isAuthenticated) return alert("Login dulu!");
@@ -113,9 +107,7 @@ export default function App() {
     if (isAuthenticated && backend) refreshResults();
   }, [isAuthenticated, backend]);
 
-
   console.log("results", results);
-  
 
   return (
     <div>
