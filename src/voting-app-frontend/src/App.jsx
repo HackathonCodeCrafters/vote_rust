@@ -2,6 +2,7 @@ import { Actor, HttpAgent } from "@dfinity/agent";
 import { AuthClient } from "@dfinity/auth-client";
 import { canisterId, idlFactory } from "declarations/voting-app-backend";
 import { useEffect, useState } from "react";
+import Layout from "./components/layout/mainLayout";
 
 export default function App() {
   const [authClient, setAuthClient] = useState(null);
@@ -110,34 +111,37 @@ export default function App() {
   console.log("results", results);
 
   return (
-    <div>
-      <h1>🗳️ Voting App + ICP Login</h1>
+    <>
+      <Layout />
+    </>
+    // <div>
+    //   <h1>🗳️ Voting App + ICP Login</h1>
 
-      {isAuthenticated ? (
-        <>
-          <p>🔐 Logged in as: {principal}</p>
-          <button onClick={logout}>Logout</button>
-        </>
-      ) : showContinue ? (
-        <button onClick={continueWithSession}>
-          Continue as {tempPrincipal}
-        </button>
-      ) : (
-        <button onClick={login}>Login with Internet Identity</button>
-      )}
+    //   {isAuthenticated ? (
+    //     <>
+    //       <p>🔐 Logged in as: {principal}</p>
+    //       <button onClick={logout}>Logout</button>
+    //     </>
+    //   ) : showContinue ? (
+    //     <button onClick={continueWithSession}>
+    //       Continue as {tempPrincipal}
+    //     </button>
+    //   ) : (
+    //     <button onClick={login}>Login with Internet Identity</button>
+    //   )}
 
-      <hr />
+    //   <hr />
 
-      <ul>
-        {results.map((c) => (
-          <li key={c.name}>
-            {c.name}: {c.votes} votes{" "}
-            <button onClick={() => voteFor(c.name)}>Vote</button>
-          </li>
-        ))}
-      </ul>
+    //   <ul>
+    //     {results.map((c) => (
+    //       <li key={c.name}>
+    //         {c.name}: {c.votes} votes{" "}
+    //         <button onClick={() => voteFor(c.name)}>Vote</button>
+    //       </li>
+    //     ))}
+    //   </ul>
 
-      {voteMsg && <p>{voteMsg}</p>}
-    </div>
+    //   {voteMsg && <p>{voteMsg}</p>}
+    // </div>
   );
 }
