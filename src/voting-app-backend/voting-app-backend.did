@@ -1,6 +1,16 @@
+type Proposal = record {
+  id: nat64;
+  title: text;
+  description: text;
+  votes: nat32;
+  created_at: nat64;
+  duration_days: nat32;
+};
+
+type VoteResult = variant { Ok: null; Err: text };
+
 service : {
-    "greet": (text) -> (text) query;
-    "add_candidate": (text) -> (text);
-    "vote": (text, text) -> (text);
-    "get_results": () -> (vec record { name: text; votes: nat32 });
+  add_proposal: (text, text, nat32) -> (nat64);
+  get_proposals: () -> (vec Proposal) query;
+  vote_proposal: (nat64) -> (VoteResult);
 }
