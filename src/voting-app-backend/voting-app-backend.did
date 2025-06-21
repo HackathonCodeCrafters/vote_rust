@@ -1,6 +1,30 @@
+type Proposal = record {
+  id: nat64;
+  title: text;
+  description: text;
+  image_url: opt text;
+  yes_votes: nat32;
+  no_votes: nat32;
+  created_at: nat64;
+  duration_days: nat32;
+};
+
+
+type VoteResult = variant { Ok: null; Err: text };
+type VoteChoice = variant { Yes; No };
+type ProposalStats = record {
+  total_proposals: nat64;
+  total_yes_votes: nat64;
+  total_no_votes: nat64;
+  total_votes: nat64;
+};
+
+
 service : {
-    "greet": (text) -> (text) query;
-    "add_candidate": (text) -> (text);
-    "vote": (text, text) -> (text);
-    "get_results": () -> (vec record { name: text; votes: nat32 });
+  add_proposal: (text, text, opt text, nat32) -> (nat64);
+  get_proposals: () -> (vec Proposal) query;
+  vote_proposal: (nat64, VoteChoice) -> (VoteResult);
+  get_proposal_by_id: (nat64) -> (opt Proposal) query;
+  get_proposal_stats: () -> (ProposalStats) query;
+
 }

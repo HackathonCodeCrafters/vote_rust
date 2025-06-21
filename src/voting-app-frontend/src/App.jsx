@@ -1,151 +1,177 @@
-import React, { useState, useEffect } from "react";
-import { AuthClient } from "@dfinity/auth-client";
-import { Actor, HttpAgent } from "@dfinity/agent";
-import { idlFactory, canisterId } from "declarations/voting-app-backend";
+"use client";
+
+import { canisterId, idlFactory } from "declarations/voting-app-backend";
+import { useEffect } from "react";
+import { useAuth } from "./hooks/useAuth";
+import { useRouter } from "./hooks/useRouter";
+import { useVoting } from "./hooks/useVoting";
+import MainLayout from "./layouts/MainLayouts";
+import Dashboard from "./pages/Dashboard/HomePage";
+import HomePage from "./pages/HomePage";
+import PricingPage from "./pages/Pricing";
 
 export default function App() {
-  const [authClient, setAuthClient] = useState(null);
-  const [backend, setBackend] = useState(null);
-  const [principal, setPrincipal] = useState("");
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [showContinue, setShowContinue] = useState(false);
-  const [tempPrincipal, setTempPrincipal] = useState("");
+  // Custom hooks
+  const auth = useAuth();
+  const router = useRouter();
+  const voting = useVoting(auth.backend, auth.principal, auth.isAuthenticated);
 
-  // Inisialisasi Auth & Actor
+  // Initialize actor when auth is ready
   useEffect(() => {
-    AuthClient.create().then(async (client) => {
-      setAuthClient(client);
-      const auth = await client.isAuthenticated();
-      if (auth) {
-        const p = client.getIdentity().getPrincipal().toText();
-        setTempPrincipal(p);
-        setShowContinue(true);
-      }
-    });
-  }, []);
-
-  const initActor = (identity) => {
-    const agent = new HttpAgent({ identity });
-    if (process.env.DFX_NETWORK === "local") agent.fetchRootKey();
-    const actor = Actor.createActor(idlFactory, { agent, canisterId });
-    console.log("Actor created:", actor);
-    setBackend(actor);
-  };
-
-
-  useEffect(() => {
-    if (isAuthenticated && backend) {
-      console.log("refreshResults triggered");
-      refreshResults();
+    if (auth.authClient && auth.isAuthenticated && !auth.backend) {
+      console.log("Initializing actor...");
+      auth.initActor(canisterId, idlFactory);
     }
-  }, [isAuthenticated, backend]);
-  
-  
+  }, [auth.authClient, auth.isAuthenticated, auth.backend]);
 
-  const continueWithSession = () => {
-    setPrincipal(tempPrincipal);
-    setIsAuthenticated(true);
-    initActor(authClient.getIdentity());
-  };
+  // Auto-redirect to dashboard after authentication
+  useEffect(() => {
+    if (auth.isAuthenticated && router.currentPage === "landing") {
+      console.log("Authentication detected, redirecting to dashboard...");
+      router.navigate("dashboard");
+    }
+  }, [auth.isAuthenticated, router.currentPage]);
 
-  // const login = async () => {
-  //   await authClient.login({
-  //     identityProvider:
-  //       "http://v27v7-7x777-77774-qaaha-cai.localhost:4943",
-  //     onSuccess: () => {
-  //       const p = authClient.getIdentity().getPrincipal().toText();
-  //       setPrincipal(p);
-  //       setIsAuthenticated(true);
-  //       initActor(authClient.getIdentity());
-  //     },
-  //   });
-  // };
-
-
-  const login = async () => {
-    await authClient.login({
-      identityProvider: "http://v27v7-7x777-77774-qaaha-cai.localhost:4943",
-      onSuccess: async () => {
-        const p = authClient.getIdentity().getPrincipal().toText();
-        setPrincipal(p);
-        setIsAuthenticated(true);
-        initActor(authClient.getIdentity());
-      },
-    });
-  };
-  
-
-  const logout = async () => {
-    await authClient.logout();
-    setIsAuthenticated(false);
-    setPrincipal("");
-    setShowContinue(false);
-    setTempPrincipal("");
-    setBackend(null);
-  };
-
-  const [results, setResults] = useState([]);
-  const [voteMsg, setVoteMsg] = useState("");
-
-  const refreshResults = async () => {
-    if (backend) {
-      const res = await backend.get_results();
-      console.log("RAW result from backend:", res);
-      if (res.length > 0) {
-        console.log("First item keys:", Object.keys(res[0]));
-      }
-      setResults(res);
+  // Handle wallet connection
+  const handleWalletConnect = () => {
+    if (auth.showContinue) {
+      auth.continueWithSession();
+      // Initialize actor after continuing session
+      setTimeout(() => {
+        if (auth.authClient) {
+          auth.initActor(canisterId, idlFactory);
+        }
+      }, 100);
+    } else {
+      auth.login().then(() => {
+        // Initialize actor after login
+        setTimeout(() => {
+          if (auth.authClient) {
+            auth.initActor(canisterId, idlFactory);
+          }
+        }, 100);
+      });
     }
   };
-  
 
-  const voteFor = async (name) => {
-    if (!isAuthenticated) return alert("Login dulu!");
-    await backend.add_candidate("bawang goreng");
-    await backend.add_candidate("bawang putih");
-
-    const msg = await backend.vote(name, principal);
-    setVoteMsg(msg);
-    refreshResults();
+  // Handle wallet disconnection
+  const handleWalletDisconnect = () => {
+    auth.logout();
+    router.navigate("landing");
   };
 
-  useEffect(() => {
-    if (isAuthenticated && backend) refreshResults();
-  }, [isAuthenticated, backend]);
+  // Handle navigation
+  const handleNavigation = (page) => {
+    router.handleNavigation(page, auth.isAuthenticated);
+  };
 
+  // Handle create proposal
+  const handleCreateProposal = () => {
+    if (!auth.isAuthenticated) {
+      alert(
+        "Please connect your Internet Identity first to create a proposal!"
+      );
+      return;
+    }
+    console.log("Opening create proposal modal...");
+  };
 
-  console.log("results", results);
-  
+  // Render different pages based on current page
+  const renderPage = () => {
+    console.log(
+      "Rendering page:",
+      router.currentPage,
+      "isAuthenticated:",
+      auth.isAuthenticated
+    );
+
+    switch (router.currentPage) {
+      case "pricing":
+        return <PricingPage onConnectWallet={handleWalletConnect} />;
+
+      case "dashboard":
+        if (auth.isAuthenticated) {
+          return (
+            <Dashboard
+              backend={auth.backend}
+              principal={auth.principal}
+              results={voting.results}
+              voteFor={voting.voteFor}
+              voteMsg={voting.voteMsg}
+              refreshResults={voting.refreshResults}
+              onCreateProposal={handleCreateProposal}
+            />
+          );
+        } else {
+          // Redirect to landing if not authenticated
+          router.navigate("landing");
+          return (
+            <HomePage
+              onConnectWallet={handleWalletConnect}
+              showContinue={auth.showContinue}
+              onContinueSession={auth.continueWithSession}
+              tempPrincipal={auth.tempPrincipal}
+              formatPrincipal={auth.formatPrincipal}
+            />
+          );
+        }
+
+      case "votes":
+      case "proposals":
+        return auth.isAuthenticated ? (
+          <Dashboard
+            backend={auth.backend}
+            principal={auth.principal}
+            results={voting.results}
+            voteFor={voting.voteFor}
+            voteMsg={voting.voteMsg}
+            refreshResults={voting.refreshResults}
+            onCreateProposal={handleCreateProposal}
+          />
+        ) : (
+          <HomePage
+            onConnectWallet={handleWalletConnect}
+            showContinue={auth.showContinue}
+            onContinueSession={auth.continueWithSession}
+            tempPrincipal={auth.tempPrincipal}
+            formatPrincipal={auth.formatPrincipal}
+          />
+        );
+
+      case "about":
+        return (
+          <div className="max-w-4xl mx-auto px-4 py-16">
+            <h1 className="text-4xl font-bold mb-8">About VoteChain</h1>
+            <p className="text-lg text-gray-600">
+              VoteChain is a decentralized governance platform built on Internet
+              Computer Protocol...
+            </p>
+          </div>
+        );
+
+      default:
+        return (
+          <HomePage
+            onConnectWallet={handleWalletConnect}
+            showContinue={auth.showContinue}
+            onContinueSession={auth.continueWithSession}
+            tempPrincipal={auth.tempPrincipal}
+            formatPrincipal={auth.formatPrincipal}
+          />
+        );
+    }
+  };
 
   return (
-    <div>
-      <h1>🗳️ Voting App + ICP Login</h1>
-
-      {isAuthenticated ? (
-        <>
-          <p>🔐 Logged in as: {principal}</p>
-          <button onClick={logout}>Logout</button>
-        </>
-      ) : showContinue ? (
-        <button onClick={continueWithSession}>
-          Continue as {tempPrincipal}
-        </button>
-      ) : (
-        <button onClick={login}>Login with Internet Identity</button>
-      )}
-
-      <hr />
-
-      <ul>
-        {results.map((c) => (
-          <li key={c.name}>
-            {c.name}: {c.votes} votes{" "}
-            <button onClick={() => voteFor(c.name)}>Vote</button>
-          </li>
-        ))}
-      </ul>
-
-      {voteMsg && <p>{voteMsg}</p>}
-    </div>
+    <MainLayout
+      isWalletConnected={auth.isAuthenticated}
+      onWalletConnect={handleWalletConnect}
+      onWalletDisconnect={handleWalletDisconnect}
+      principal={auth.principal}
+      currentPage={router.currentPage}
+      onNavigate={handleNavigation}
+    >
+      {renderPage()}
+    </MainLayout>
   );
 }

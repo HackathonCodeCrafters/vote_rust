@@ -1,0 +1,73 @@
+import FAQItem from "@/components/molecules/FaqItem";
+
+interface FAQItemProps {
+  darkMode?: boolean;
+}
+
+const faqs = [
+  {
+    question: "What is VoteChain and how does it work?",
+    answer:
+      "VoteChain is a decentralized governance platform built on Internet Computer Protocol. It allows communities to create, discuss, and vote on proposals in a transparent and secure manner using blockchain technology.",
+  },
+  {
+    question: "How do I participate in voting?",
+    answer:
+      "To participate, you need to connect your Internet Identity or supported wallet. Once connected, you can browse active proposals, read details, and cast your votes. Your voting power may depend on your token holdings or community membership.",
+  },
+  {
+    question: "Is my vote private and secure?",
+    answer:
+      "Yes, all votes are cryptographically secured and recorded on the blockchain. While the voting results are transparent, your individual vote can remain private depending on the proposal settings.",
+  },
+  {
+    question: "Can I create my own proposals?",
+    answer:
+      "Connected users can create proposals by providing a title, description, and relevant details. Proposals go through a review process before becoming active for voting.",
+  },
+  {
+    question: "What makes Internet Computer different?",
+    answer:
+      "Internet Computer offers web-speed performance, low costs, and can host entire applications on-chain. This means faster voting, lower fees, and a more seamless user experience compared to other blockchains.",
+  },
+  {
+    question: "Are there any fees for voting?",
+    answer:
+      "Voting on VoteChain has minimal fees thanks to Internet Computer's efficient architecture. Most voting actions cost fractions of a cent, making governance accessible to everyone.",
+  },
+];
+
+export default function Faq({ darkMode = false }: FAQItemProps) {
+  return (
+    <div className={`py-16 ${darkMode ? "bg-gray-800/50" : "bg-gray-50"}`}>
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div
+          className={`text-center mb-16 ${
+            darkMode ? "text-white" : "text-gray-900"
+          }`}
+        >
+          <h2 className="text-3xl md:text-4xl font-bold mb-4">
+            Frequently Asked Questions
+          </h2>
+          <p
+            className={`text-xl ${
+              darkMode ? "text-gray-300" : "text-gray-600"
+            }`}
+          >
+            Everything you need to know about VoteChain
+          </p>
+        </div>
+        <div className="space-y-4">
+          {faqs.map((faq, index) => (
+            <FAQItem
+              key={index}
+              question={faq.question}
+              answer={faq.answer}
+              darkMode={darkMode}
+            />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
