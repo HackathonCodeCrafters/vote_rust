@@ -64,7 +64,14 @@ If you are hosting frontend code somewhere without using DFX, you may need to ma
 ### add proposal
 
 ```bash
-dfx canister call voting-app-backend add_proposal '( "Upgrade Server", "Kita butuh server baru", 14 )' 
+
+# without image
+dfx canister call voting-app-backend add_proposal '("Judul", "Deskripsi", null, 14)'
+
+# with image
+dfx canister call voting-app-backend add_proposal '("Judul", "Deskripsi", opt "https://foo.bar/img.png", 14)'
+
+
 ```
 
 ### get proposal
@@ -75,8 +82,26 @@ dfx canister call voting-app-backend get_proposals
 
 ### vote proposal
 ```bash
-dfx canister call voting-app-backend vote_proposal '(1)'
+# vote yes
+dfx canister call voting-app-backend vote_proposal '(0, variant { Yes })'
+
+# vote no
+dfx canister call voting-app-backend vote_proposal '(0, variant { No })'
+
 ```
+
+### get proposal by id 
+```bash
+dfx canister call voting-app-backend get_proposal_by_id '(0)'
+```
+
+###  Statistik Proposal
+```bash
+dfx canister call voting-app-backend get_proposal_stats
+```
+
+
+
 
 
 
