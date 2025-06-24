@@ -30,7 +30,8 @@ If you want to test your project locally, you can use the following commands:
 dfx start --background
 
 # Deploys your canisters to the replica and generates your candid interface
-dfx deploy
+dfx deploy --upgrade-unchanged
+
 ```
 
 Once the job completes, your application will be available at `http://localhost:4943?canisterId={asset_canister_id}`.
@@ -61,15 +62,25 @@ If you are hosting frontend code somewhere without using DFX, you may need to ma
 - Write your own `createActor` constructor
 
 
+# update be 
+```bash
+
+dfx build
+
+dfx canister install --mode=upgrade voting-app-backend
+```    
+
+
+
 ### add proposal
 
 ```bash
 
 # without image
-dfx canister call voting-app-backend add_proposal '("Judul", "Deskripsi", null, 14)'
+dfx canister call voting-app-backend add_proposal '("Judul", "Deskripsi", null, 14, null, null, null)'
 
-# with image
-dfx canister call voting-app-backend add_proposal '("Judul", "Deskripsi", opt "https://foo.bar/img.png", 14)'
+# with image url and image covert base64
+dfx canister call voting-app-backend add_proposal '("Judul", "Deskripsi", opt "https://foo.bar/img.png", 14, opt "Full Deskripsi", opt "Categori", opt "iVBORw0KGgoAAAANSUhEUgAABVgAAAFuCAYAAA")'
 
 
 ```
@@ -83,7 +94,7 @@ dfx canister call voting-app-backend get_proposals
 ### vote proposal
 ```bash
 # vote yes
-dfx canister call voting-app-backend vote_proposal '(0, variant { Yes })'
+dfx canister call voting-app-backend vote_proposal '("id", variant { Yes })'
 
 # vote no
 dfx canister call voting-app-backend vote_proposal '(0, variant { No })'
@@ -100,9 +111,7 @@ dfx canister call voting-app-backend get_proposal_by_id '(0)'
 dfx canister call voting-app-backend get_proposal_stats
 ```
 
-
-
-
-
-
-
+### Delete Proposal
+```bash
+dfx canister call voting-app-backend delete_proposal '(1)'
+```

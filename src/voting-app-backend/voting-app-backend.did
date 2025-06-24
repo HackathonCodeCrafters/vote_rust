@@ -1,5 +1,10 @@
+type Votes = record {
+  yes: nat32;
+  no: nat32;
+};
+
 type Proposal = record {
-  id: nat64;
+  id: text;
   title: text;
   description: text;
   image_url: opt text;
@@ -7,7 +12,18 @@ type Proposal = record {
   no_votes: nat32;
   created_at: nat64;
   duration_days: nat32;
+  time_left: opt text;
+  status: opt text;
+  total_voters: opt nat32;
+  full_description: opt text;
+  image: opt text;
+  votes: opt Votes;
+  author: opt text;
+  category: opt text;
+  discussions: opt nat32;
+  voters: opt vec principal;
 };
+
 
 
 type VoteResult = variant { Ok: null; Err: text };
@@ -21,10 +37,10 @@ type ProposalStats = record {
 
 
 service : {
-  add_proposal: (text, text, opt text, nat32) -> (nat64);
+  add_proposal: (text, text, opt text, nat32, opt text, opt text, opt text) -> (text);
   get_proposals: () -> (vec Proposal) query;
-  vote_proposal: (nat64, VoteChoice) -> (VoteResult);
-  get_proposal_by_id: (nat64) -> (opt Proposal) query;
+  vote_proposal: (text, VoteChoice) -> (VoteResult);
+  get_proposal_by_id: (text) -> (opt Proposal) query;
   get_proposal_stats: () -> (ProposalStats) query;
-
+  delete_proposal: (text) -> (VoteResult);
 }
