@@ -21,6 +21,9 @@ interface UseAuthReturn {
 
   // Utility methods
   formatPrincipal: (principalText: string) => string;
+
+  // Loading state
+  isLoading: boolean;
 }
 
 export function useAuth(): UseAuthReturn {
@@ -30,22 +33,37 @@ export function useAuth(): UseAuthReturn {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [showContinue, setShowContinue] = useState(false);
   const [tempPrincipal, setTempPrincipal] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
 
   // Initialize Auth Client
   useEffect(() => {
     const initAuth = async () => {
       try {
+        setIsLoading(true);
         const client = await AuthClient.create();
         setAuthClient(client);
 
+        // Check if user is already authenticated
         const isAuth = await client.isAuthenticated();
+        console.log("Auth check result:", isAuth);
+
         if (isAuth) {
-          const p = client.getIdentity().getPrincipal().toText();
-          setTempPrincipal(p);
-          setShowContinue(true);
+          const identity = client.getIdentity();
+          const p = identity.getPrincipal().toText();
+          console.log("Found existing session:", p);
+
+          // Auto-login with existing session
+          setPrincipal(p);
+          setIsAuthenticated(true);
+          setShowContinue(false);
+          setTempPrincipal("");
+        } else {
+          console.log("No existing session found");
         }
       } catch (error) {
         console.error("Failed to initialize auth client:", error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -145,6 +163,7 @@ export function useAuth(): UseAuthReturn {
     isAuthenticated,
     showContinue,
     tempPrincipal,
+    isLoading,
 
     // Methods
     login,

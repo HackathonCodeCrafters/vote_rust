@@ -1,8 +1,9 @@
 "use client";
 
 import Footer from "@/components/organism/Footer";
-import AdaptiveNavbar from "@/components/organism/menu/landing/Navbar";
-import React, { useEffect, useState, type ReactNode } from "react";
+import AdaptiveNavbar from "@/components/organism/menu/Navbar";
+import React, { type ReactNode } from "react";
+import { useDarkMode } from "../context/DarkModeContext";
 
 interface MainLayoutProps {
   children: ReactNode;
@@ -23,35 +24,7 @@ export default function MainLayout({
   currentPage = "",
   onNavigate,
 }: MainLayoutProps) {
-  const [darkMode, setDarkMode] = useState(false);
-
-  // Initialize dark mode from localStorage or system preference
-  useEffect(() => {
-    const savedMode = localStorage.getItem("darkMode");
-    const prefersDark = window.matchMedia(
-      "(prefers-color-scheme: dark)"
-    ).matches;
-
-    if (savedMode !== null) {
-      setDarkMode(JSON.parse(savedMode));
-    } else {
-      setDarkMode(prefersDark);
-    }
-  }, []);
-
-  // Save dark mode preference
-  useEffect(() => {
-    localStorage.setItem("darkMode", JSON.stringify(darkMode));
-    if (darkMode) {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
-  }, [darkMode]);
-
-  const toggleDarkMode = () => {
-    setDarkMode(!darkMode);
-  };
+  const { darkMode, toggleDarkMode, isLoading } = useDarkMode();
 
   const handleCreateProposal = () => {
     if (!isWalletConnected) {
@@ -83,13 +56,25 @@ export default function MainLayout({
     return `${principalText.slice(0, 6)}...${principalText.slice(-4)}`;
   };
 
+  // Don't render until dark mode is loaded to prevent flash
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-lg text-gray-900 dark:text-white">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div
       className={`min-h-screen transition-colors duration-300 ${
         darkMode ? "bg-gray-900" : "bg-gray-50"
       }`}
     >
-      {/* Adaptive Navbar - Satu navbar untuk semua state */}
+      {/* Adaptive Navbar */}
       <AdaptiveNavbar
         darkMode={darkMode}
         toggleDarkMode={toggleDarkMode}
@@ -103,9 +88,9 @@ export default function MainLayout({
         onNavigate={handleNavigation}
       />
 
-      {/* Main Content - Changes per page */}
+      {/* Main Content */}
       <main className="min-h-[calc(100vh-200px)]">
-        {/* Pass props to children if needed */}
+        {/* Pass darkMode and other props to children */}
         {React.isValidElement(children) && typeof children.type !== "string"
           ? React.cloneElement(children as React.ReactElement<any>, {
               darkMode,
@@ -118,7 +103,7 @@ export default function MainLayout({
           : children}
       </main>
 
-      {/* Footer - Always visible */}
+      {/* Footer */}
       <Footer darkMode={darkMode} />
     </div>
   );
