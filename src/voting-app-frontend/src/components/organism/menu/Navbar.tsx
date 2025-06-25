@@ -3,18 +3,16 @@
 import VoteVerse from "@/assets/img/logo_vote_verse.png";
 import Button from "@/components/atoms/Button";
 import Logo from "@/components/molecules/Logo";
-import NetworkSelector from "@/components/molecules/NetworkSelector";
 import {
+  BookOpen,
   DollarSign,
   Home,
   Info,
   LogOut,
+  Mail,
   Menu,
   Moon,
-  Plus,
-  Shield,
   Sun,
-  User,
   Vote,
   Wallet,
   X,
@@ -34,26 +32,18 @@ interface AdaptiveNavbarProps {
   onNavigate?: (page: string) => void;
 }
 
-const networks = [
-  { name: "Ethereum", color: "bg-blue-500", icon: "⟠" },
-  { name: "Polygon", color: "bg-purple-500", icon: "⬟" },
-  { name: "BSC", color: "bg-yellow-500", icon: "◆" },
-  { name: "Arbitrum", color: "bg-cyan-500", icon: "▲" },
-];
-
 // Navigation items for different states
 const guestNavLinks = [
   { name: "Home", href: "", icon: Home },
   { name: "Pricing", href: "pricing", icon: DollarSign },
   { name: "About", href: "about", icon: Info },
+  { name: "Contact Us", href: "contact-us", icon: Mail },
+  { name: "Blog", href: "blog", icon: BookOpen },
 ];
 
 const authenticatedNavLinks = [
   { name: "Dashboard", href: "dashboard", icon: Home },
   { name: "Active Votes", href: "votes", icon: Vote },
-  { name: "Proposals", href: "proposals", icon: Plus },
-  { name: "My History", href: "history", icon: User },
-  { name: "Governance", href: "governance", icon: Shield },
 ];
 
 export default function AdaptiveNavbar({
@@ -69,8 +59,6 @@ export default function AdaptiveNavbar({
   onNavigate,
 }: AdaptiveNavbarProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [selectedNetwork, setSelectedNetwork] = useState("Ethereum");
-
   const navLinks = isAuthenticated ? authenticatedNavLinks : guestNavLinks;
 
   const handleNavigation = (href: string, name: string) => {
@@ -127,48 +115,6 @@ export default function AdaptiveNavbar({
 
           {/* Right Side Controls */}
           <div className="flex items-center space-x-4">
-            {/* Create Proposal Button - Only for authenticated users */}
-            {isAuthenticated && (
-              <div className="hidden sm:block">
-                <Button
-                  onClick={onCreateProposal}
-                  variant="gradient"
-                  icon={Plus}
-                  className="bg-gradient-to-r from-purple-500 to-pink-600 shadow-purple-500/25"
-                >
-                  Create Proposal
-                </Button>
-              </div>
-            )}
-
-            {/* Voting Power - Only for authenticated users */}
-            {isAuthenticated && (
-              <div
-                className={`hidden sm:flex items-center space-x-2 px-3 py-2 rounded-lg border ${
-                  darkMode
-                    ? "bg-gray-800 border-gray-700 text-emerald-400"
-                    : "bg-emerald-50 border-emerald-200 text-emerald-600"
-                }`}
-              >
-                <Shield size={16} />
-                <span className="text-sm font-medium">
-                  {votingPower.toLocaleString()} VP
-                </span>
-              </div>
-            )}
-
-            {/* Network Selector - Only for authenticated users */}
-            {isAuthenticated && (
-              <div className="hidden sm:block">
-                <NetworkSelector
-                  networks={networks}
-                  selectedNetwork={selectedNetwork}
-                  onNetworkChange={setSelectedNetwork}
-                  darkMode={darkMode}
-                />
-              </div>
-            )}
-
             {/* Dark Mode Toggle */}
             <button
               onClick={toggleDarkMode}
@@ -236,40 +182,6 @@ export default function AdaptiveNavbar({
             }`}
           >
             <div className="px-2 pt-2 pb-3 space-y-1">
-              {/* Create Proposal Button - Mobile */}
-              {isAuthenticated && (
-                <Button
-                  onClick={() => {
-                    onCreateProposal();
-                    setIsMenuOpen(false);
-                  }}
-                  variant="gradient"
-                  icon={Plus}
-                  className="w-full bg-gradient-to-r from-purple-500 to-pink-600"
-                >
-                  Create Proposal
-                </Button>
-              )}
-
-              {/* Voting Power - Mobile */}
-              {isAuthenticated && (
-                <div
-                  className={`flex items-center justify-between px-3 py-2 rounded-lg ${
-                    darkMode
-                      ? "bg-gray-800 text-emerald-400"
-                      : "bg-emerald-50 text-emerald-600"
-                  }`}
-                >
-                  <div className="flex items-center space-x-2">
-                    <Shield size={16} />
-                    <span className="text-sm font-medium">Voting Power</span>
-                  </div>
-                  <span className="font-bold">
-                    {votingPower.toLocaleString()} VP
-                  </span>
-                </div>
-              )}
-
               {/* Navigation Links - Mobile */}
               {navLinks.map((link) => {
                 const IconComponent = link.icon;

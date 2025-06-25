@@ -1,8 +1,23 @@
 "use client";
 
+import IC from "@/assets/img/icp.png";
 import VoteVerse from "@/assets/img/logo_vote_verse.png";
 import Logo from "@/components/molecules/Logo";
-import { Github, MessageCircle, Twitter } from "lucide-react";
+import { Image } from "@chakra-ui/react";
+import {
+  BookOpen,
+  Cookie,
+  DollarSign,
+  FileText,
+  Github,
+  Info,
+  Lock,
+  Mail,
+  MessageCircle,
+  Shield,
+  Twitter,
+} from "lucide-react";
+import { Link } from "react-router-dom";
 
 interface FooterProps {
   darkMode?: boolean;
@@ -10,28 +25,31 @@ interface FooterProps {
 
 const footerLinks = {
   product: [
-    { name: "Features", href: "#features" },
-    { name: "Pricing", href: "#pricing" },
-    { name: "Documentation", href: "#docs" },
-    { name: "API", href: "#api" },
+    { name: "Features", href: "#features", icon: "" },
+    { name: "Pricing", href: "/pricing", icon: <DollarSign size={14} /> },
+    { name: "Documentation", href: "#docs", icon: "" },
+    { name: "API", href: "#api", icon: "" },
   ],
   company: [
-    { name: "About", href: "#about" },
-    { name: "Blog", href: "#blog" },
-    { name: "Careers", href: "#careers" },
-    { name: "Contact", href: "#contact" },
+    { name: "About", href: "/about", icon: <Info size={14} /> },
+    { name: "Blog", href: "/blog", icon: <BookOpen size={14} /> },
+    { name: "Contact", href: "/contact-us", icon: <Mail size={14} /> },
   ],
   resources: [
-    { name: "Community", href: "#community" },
-    { name: "Help Center", href: "#help" },
-    { name: "Partners", href: "#partners" },
-    { name: "Status", href: "#status" },
+    { name: "Community", href: "#community", icon: "" },
+    { name: "Help Center", href: "#help", icon: "" },
+    { name: "Partners", href: "#partners", icon: "" },
+    { name: "Status", href: "#status", icon: "" },
   ],
   legal: [
-    { name: "Privacy", href: "#privacy" },
-    { name: "Terms", href: "#terms" },
-    { name: "Security", href: "#security" },
-    { name: "Cookies", href: "#cookies" },
+    {
+      name: "Privacy Policy",
+      href: "/privacy-policy",
+      icon: <Shield size={14} />,
+    },
+    { name: "Cookie Policy", href: "/cookies", icon: <Cookie size={14} /> },
+    { name: "Security Policy", href: "/security", icon: <Lock size={14} /> },
+    { name: "Terms of Service", href: "/terms", icon: <FileText size={14} /> },
   ],
 };
 
@@ -69,7 +87,9 @@ export default function Footer({ darkMode = false }: FooterProps) {
                 <Twitter size={20} />
               </a>
               <a
-                href="#"
+                href="https://github.com/HackathonCodeCrafters"
+                target="_blank"
+                rel="noopener noreferrer"
                 className={`p-2 rounded-lg transition-colors ${
                   darkMode
                     ? "text-gray-400 hover:text-white hover:bg-gray-800"
@@ -104,16 +124,17 @@ export default function Footer({ darkMode = false }: FooterProps) {
               <ul className="space-y-2">
                 {links.map((link) => (
                   <li key={link.name}>
-                    <a
-                      href={link.href}
-                      className={`text-sm transition-colors ${
+                    <Link
+                      to={link.href}
+                      className={`text-sm transition-colors flex items-center space-x-2 ${
                         darkMode
                           ? "text-gray-400 hover:text-white"
                           : "text-gray-600 hover:text-gray-900"
                       }`}
                     >
-                      {link.name}
-                    </a>
+                      {link.icon}
+                      <span>{link.name}</span>
+                    </Link>
                   </li>
                 ))}
               </ul>
@@ -144,7 +165,9 @@ export default function Footer({ darkMode = false }: FooterProps) {
                 Powered by
               </span>
               <div className="flex items-center space-x-2">
-                <div className="w-6 h-6 rounded bg-gradient-to-r from-purple-500 to-pink-500"></div>
+                <div className="rounded ">
+                  <Image src={IC} alt="Internet Computer" className="h-6" />
+                </div>
                 <span
                   className={`text-sm font-medium ${
                     darkMode ? "text-white" : "text-gray-900"
