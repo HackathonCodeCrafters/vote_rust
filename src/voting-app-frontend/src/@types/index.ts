@@ -1,2 +1,2 @@
-export * as Proposal from "./type.proposal";
 export * as Backend from "./backend";
+export * as Proposal from "./proposal";
