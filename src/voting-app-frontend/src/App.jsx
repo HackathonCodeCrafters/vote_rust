@@ -2,70 +2,116 @@
 
 import { canisterId, idlFactory } from "declarations/voting-app-backend";
 import { useEffect } from "react";
+import {
+  Navigate,
+  Route,
+  BrowserRouter as Router,
+  Routes,
+  useNavigate,
+} from "react-router-dom";
+import DarkModeScript from "./components/atoms/DarkModeScript";
+import { DarkModeProvider, useDarkMode } from "./context/DarkModeContext";
 import { useAuth } from "./hooks/useAuth";
-import { useRouter } from "./hooks/useRouter";
 import { useVoting } from "./hooks/useVoting";
 import MainLayout from "./layouts/MainLayouts";
+import AboutPage from "./pages/AboutPage";
+import BlogPage from "./pages/BlogPage";
+import ContactPage from "./pages/ContactPage";
+import ActiveVote from "./pages/Dashboard/ActiveVote";
 import Dashboard from "./pages/Dashboard/HomePage";
+import CookiePolicyPage from "./pages/Footer/CookiePolicy";
+import PrivacyPolicyPage from "./pages/Footer/PrivacyPolicy";
+import SecurityPolicyPage from "./pages/Footer/SecurityPolicy";
+import TermsOfServicePage from "./pages/Footer/Terms";
 import HomePage from "./pages/HomePage";
 import PricingPage from "./pages/Pricing";
 
-export default function App() {
-  // Custom hooks
-  const auth = useAuth();
-  const router = useRouter();
-  const voting = useVoting(auth.backend, auth.principal, auth.isAuthenticated);
+// Loading screen component
+function LoadingScreen() {
+  const { darkMode, isLoading } = useDarkMode();
 
-  // Initialize actor when auth is ready
+  // Don't show loading screen if dark mode is still loading
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-lg text-gray-900 dark:text-white">
+            Loading VoteChain...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className={`min-h-screen flex items-center justify-center ${
+        darkMode ? "bg-gray-900" : "bg-gray-50"
+      }`}
+    >
+      <div className="text-center">
+        <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+        <p className={`text-lg ${darkMode ? "text-white" : "text-gray-900"}`}>
+          Loading VoteChain...
+        </p>
+      </div>
+    </div>
+  );
+}
+
+// Main App Component
+function AppWrapper() {
+  return (
+    <>
+      <DarkModeScript />
+      <DarkModeProvider>
+        <Router>
+          <App />
+        </Router>
+      </DarkModeProvider>
+    </>
+  );
+}
+
+function App() {
+  const auth = useAuth();
+  const voting = useVoting(auth.backend, auth.principal, auth.isAuthenticated);
+  const navigate = useNavigate();
+  const { darkMode, isLoading: darkModeLoading } = useDarkMode();
+
   useEffect(() => {
     if (auth.authClient && auth.isAuthenticated && !auth.backend) {
-      console.log("Initializing actor...");
       auth.initActor(canisterId, idlFactory);
     }
   }, [auth.authClient, auth.isAuthenticated, auth.backend]);
 
-  // Auto-redirect to dashboard after authentication
   useEffect(() => {
-    if (auth.isAuthenticated && router.currentPage === "landing") {
-      console.log("Authentication detected, redirecting to dashboard...");
-      router.navigate("dashboard");
+    if (auth.isAuthenticated) {
+      navigate("/dashboard", { replace: true });
     }
-  }, [auth.isAuthenticated, router.currentPage]);
+  }, [auth.isAuthenticated]);
 
-  // Handle wallet connection
   const handleWalletConnect = () => {
     if (auth.showContinue) {
       auth.continueWithSession();
-      // Initialize actor after continuing session
       setTimeout(() => {
-        if (auth.authClient) {
-          auth.initActor(canisterId, idlFactory);
-        }
+        if (auth.authClient) auth.initActor(canisterId, idlFactory);
       }, 100);
     } else {
       auth.login().then(() => {
-        // Initialize actor after login
         setTimeout(() => {
-          if (auth.authClient) {
-            auth.initActor(canisterId, idlFactory);
-          }
+          if (auth.authClient) auth.initActor(canisterId, idlFactory);
         }, 100);
       });
     }
   };
 
-  // Handle wallet disconnection
   const handleWalletDisconnect = () => {
     auth.logout();
-    router.navigate("landing");
+    navigate("/");
   };
 
-  // Handle navigation
-  const handleNavigation = (page) => {
-    router.handleNavigation(page, auth.isAuthenticated);
-  };
-
-  // Handle create proposal
   const handleCreateProposal = () => {
     if (!auth.isAuthenticated) {
       alert(
@@ -76,91 +122,8 @@ export default function App() {
     console.log("Opening create proposal modal...");
   };
 
-  // Render different pages based on current page
-  const renderPage = () => {
-    console.log(
-      "Rendering page:",
-      router.currentPage,
-      "isAuthenticated:",
-      auth.isAuthenticated
-    );
-
-    switch (router.currentPage) {
-      case "pricing":
-        return <PricingPage onConnectWallet={handleWalletConnect} />;
-
-      case "dashboard":
-        if (auth.isAuthenticated) {
-          return (
-            <Dashboard
-              backend={auth.backend}
-              principal={auth.principal}
-              results={voting.results}
-              voteFor={voting.voteFor}
-              voteMsg={voting.voteMsg}
-              refreshResults={voting.refreshResults}
-              onCreateProposal={handleCreateProposal}
-            />
-          );
-        } else {
-          // Redirect to landing if not authenticated
-          router.navigate("landing");
-          return (
-            <HomePage
-              onConnectWallet={handleWalletConnect}
-              showContinue={auth.showContinue}
-              onContinueSession={auth.continueWithSession}
-              tempPrincipal={auth.tempPrincipal}
-              formatPrincipal={auth.formatPrincipal}
-            />
-          );
-        }
-
-      case "votes":
-      case "proposals":
-        return auth.isAuthenticated ? (
-          <Dashboard
-            backend={auth.backend}
-            principal={auth.principal}
-            results={voting.results}
-            voteFor={voting.voteFor}
-            voteMsg={voting.voteMsg}
-            refreshResults={voting.refreshResults}
-            onCreateProposal={handleCreateProposal}
-          />
-        ) : (
-          <HomePage
-            onConnectWallet={handleWalletConnect}
-            showContinue={auth.showContinue}
-            onContinueSession={auth.continueWithSession}
-            tempPrincipal={auth.tempPrincipal}
-            formatPrincipal={auth.formatPrincipal}
-          />
-        );
-
-      case "about":
-        return (
-          <div className="max-w-4xl mx-auto px-4 py-16">
-            <h1 className="text-4xl font-bold mb-8">About VoteChain</h1>
-            <p className="text-lg text-gray-600">
-              VoteChain is a decentralized governance platform built on Internet
-              Computer Protocol...
-            </p>
-          </div>
-        );
-
-      default:
-        return (
-          <HomePage
-            onConnectWallet={handleWalletConnect}
-            showContinue={auth.showContinue}
-            onContinueSession={auth.continueWithSession}
-            tempPrincipal={auth.tempPrincipal}
-            formatPrincipal={auth.formatPrincipal}
-          />
-        );
-    }
-  };
+  // Show loading screen while auth or dark mode is loading
+  if (auth.isLoading || darkModeLoading) return <LoadingScreen />;
 
   return (
     <MainLayout
@@ -168,10 +131,86 @@ export default function App() {
       onWalletConnect={handleWalletConnect}
       onWalletDisconnect={handleWalletDisconnect}
       principal={auth.principal}
-      currentPage={router.currentPage}
-      onNavigate={handleNavigation}
+      onNavigate={(page) => navigate(page)}
+      currentPage={window.location.pathname}
     >
-      {renderPage()}
+      <Routes>
+        <Route
+          path="/"
+          element={
+            <HomePage
+              onConnectWallet={handleWalletConnect}
+              showContinue={auth.showContinue}
+              onContinueSession={auth.continueWithSession}
+              tempPrincipal={auth.tempPrincipal}
+              formatPrincipal={auth.formatPrincipal}
+            />
+          }
+        />
+
+        <Route
+          path="/pricing"
+          element={<PricingPage onConnectWallet={handleWalletConnect} />}
+        />
+
+        <Route
+          path="/dashboard"
+          element={
+            auth.isAuthenticated ? (
+              <Dashboard
+                backend={auth.backend}
+                principal={auth.principal}
+                results={voting.results}
+                voteFor={voting.voteFor}
+                voteMsg={voting.voteMsg}
+                refreshResults={voting.refreshResults}
+                onCreateProposal={handleCreateProposal}
+              />
+            ) : (
+              <Navigate to="/" />
+            )
+          }
+        />
+
+        <Route
+          path="/votes"
+          element={auth.isAuthenticated ? <ActiveVote /> : <Navigate to="/" />}
+        />
+
+        <Route
+          path="/proposals"
+          element={
+            auth.isAuthenticated ? (
+              <Dashboard
+                backend={auth.backend}
+                principal={auth.principal}
+                results={voting.results}
+                voteFor={voting.voteFor}
+                voteMsg={voting.voteMsg}
+                refreshResults={voting.refreshResults}
+                onCreateProposal={handleCreateProposal}
+              />
+            ) : (
+              <Navigate to="/" />
+            )
+          }
+        />
+
+        <Route path="/about" element={<AboutPage />} />
+
+        {/* Privacy Policy Route */}
+        <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+        <Route path="/security" element={<SecurityPolicyPage />} />
+        <Route path="/cookies" element={<CookiePolicyPage />} />
+        <Route path="/terms" element={<TermsOfServicePage />} />
+        <Route path="/blog" element={<BlogPage />} />
+        <Route path="/contact-us" element={<ContactPage />} />
+
+        {/* Catch-all route */}
+        <Route path="*" element={<Navigate to="/" />} />
+      </Routes>
     </MainLayout>
   );
 }
+
+export default AppWrapper;

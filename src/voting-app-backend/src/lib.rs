@@ -93,7 +93,7 @@ fn post_upgrade() {
 
 
 #[update]
-fn add_proposal(title: String, description: String, image_url: Option<String>, duration_days: u32, full_description : Option<String>, category: Option<String>, image: Option<String>) -> String {
+fn add_proposal(title: String, description: String, image_url: Option<String>, duration_days: u32, full_description : Option<String>, category: Option<String>, image: Option<String>, author: Option<String>) -> String {
     STATE.with(|state| {
         let mut s = state.borrow_mut();
 
@@ -117,7 +117,7 @@ fn add_proposal(title: String, description: String, image_url: Option<String>, d
             full_description,
             image,
             votes: Some(Votes { yes: 0, no: 0 }),
-            author: None,
+            author,
             category,
             discussions: None,
             voters: Some(HashSet::new()),

@@ -8,7 +8,6 @@ interface StatCardProps {
   value: string;
   icon: LucideIcon;
   color: string;
-  change: string;
   darkMode?: boolean;
 }
 
@@ -17,7 +16,6 @@ export default function StatCard({
   value,
   icon: Icon,
   color,
-  change,
   darkMode = false,
 }: StatCardProps) {
   return (
@@ -28,7 +26,7 @@ export default function StatCard({
         >
           <Icon className="text-white" size={24} />
         </div>
-        <span className="text-green-500 text-sm font-medium">{change}</span>
+        {/* <span className="text-green-500 text-sm font-medium">{change}</span> */}
       </div>
       <div className="text-2xl font-bold mb-1">{value}</div>
       <div
