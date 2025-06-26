@@ -1,5 +1,6 @@
 "use client";
 
+import { useDarkMode } from "@/context/DarkModeContext";
 import { Check, Crown, Star, Zap } from "lucide-react";
 import { Helmet } from "react-helmet";
 import Badge from "../components/atoms/Badge";
@@ -7,7 +8,6 @@ import Button from "../components/atoms/Button";
 import Card from "../components/atoms/Card";
 
 interface PricingPageProps {
-  darkMode?: boolean;
   onConnectWallet?: () => void;
 }
 
@@ -100,10 +100,8 @@ const faqs = [
   },
 ];
 
-export default function PricingPage({
-  darkMode = false,
-  onConnectWallet,
-}: PricingPageProps) {
+export default function PricingPage({ onConnectWallet }: PricingPageProps) {
+  const { darkMode } = useDarkMode();
   return (
     <>
       <Helmet>
@@ -236,12 +234,13 @@ export default function PricingPage({
                 </div>
 
                 <Button
-                  onClick={onConnectWallet}
                   variant={plan.popular ? "gradient" : "outline"}
                   className="w-full"
                   size="lg"
                 >
-                  {plan.name === "Enterprise" ? "Contact Sales" : "Get Started"}
+                  {plan.name === "Comming Soon"
+                    ? "Comming Soon"
+                    : "Comming Soon"}
                 </Button>
               </Card>
             );

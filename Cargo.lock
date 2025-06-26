@@ -563,9 +563,11 @@ name = "voting-app-backend"
 version = "0.1.0"
 dependencies = [
  "candid",
+ "hex",
  "ic-cdk",
  "ic-cdk-macros",
  "serde",
+ "sha2",
 ]
 
 [[package]]

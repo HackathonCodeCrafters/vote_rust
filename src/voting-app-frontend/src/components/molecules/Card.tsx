@@ -33,7 +33,7 @@ export default function Card({
     "rounded-2xl border bcakdrop-blur-sm transition-all duration-300";
   const interactiveClasses = hover ? "hover:scale-[1.02] cursor-pointer" : "";
   const themeClasses = darkMode
-    ? "bg-gray-800/50 border-gray-700 hover:bg-gray-80070"
+    ? "bg-gray-800/50 border-gray-700 hover:bg-gray-800/70"
     : "bg-white/50";
 
   return (

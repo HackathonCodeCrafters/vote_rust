@@ -1,3 +1,4 @@
+import VoteVerse from "@/assets/img/logo_vote_verse.png";
 import Badge from "@/components/atoms/Badge";
 import Button from "@/components/atoms/Button";
 import { Box, Grid, Heading, Stack, Text } from "@chakra-ui/react";
@@ -24,7 +25,6 @@ export default function Hero({ darkMode, onConnectWallet }: HeroProps) {
         alignItems="center"
       >
         <Stack
-          spacing={8}
           className={`space-y-8 ${darkMode ? "text-white" : "text-gray-900"}`}
         >
           <div className="space-y-4">
@@ -84,9 +84,9 @@ export default function Hero({ darkMode, onConnectWallet }: HeroProps) {
         <div className="relative">
           <div className="relative z-10">
             <img
-              src="https://kzmih9v6f7dd687ylj5h.lite.vusercontent.net/placeholder.svg?height=600&width=800"
+              src={VoteVerse}
               alt="VoteChain Dashboard"
-              className="w-full rounded-2xl shadow-2xl"
+              className="w-full rounded-2xl"
             />
           </div>
           <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/20 to-blue-500/20 rounded-2xl blur-3xl"></div>

@@ -1,53 +1,48 @@
 "use client";
 
+import type { Proposal } from "@/@types/proposal";
 import {
   CheckCircle,
   Clock,
-  MessageSquare,
   TrendingUp,
   Users,
   X,
   XCircle,
 } from "lucide-react";
+import { useDarkMode } from "../../../context/DarkModeContext";
 import Button from "../../atoms/Button";
-
-interface Proposal {
-  id: number;
-  title: string;
-  description: string;
-  fullDescription: string;
-  image: string;
-  votes: { yes: number; no: number };
-  timeLeft: string;
-  status: string;
-  author: string;
-  category: string;
-  totalVoters: number;
-  discussions: number;
-}
 
 interface ProposalDetailModalProps {
   proposal: Proposal | null;
   isOpen: boolean;
   onClose: () => void;
-  darkMode: boolean;
-  onVote: (proposalId: number, vote: "yes" | "no") => void;
+  onVote: (proposalId: string, vote: "yes" | "no") => void;
 }
 
 export default function ProposalDetailModal({
   proposal,
   isOpen,
   onClose,
-  darkMode,
   onVote,
 }: ProposalDetailModalProps) {
+  const { darkMode } = useDarkMode();
+
   if (!isOpen || !proposal) return null;
 
-  const totalVotes = proposal.votes.yes + proposal.votes.no;
-  const yesPercentage =
-    totalVotes > 0 ? (proposal.votes.yes / totalVotes) * 100 : 0;
-  const noPercentage =
-    totalVotes > 0 ? (proposal.votes.no / totalVotes) * 100 : 0;
+  // Handle both old and new proposal structure
+  const yesVotes = proposal.votes?.yes ?? proposal.yesVotes ?? 0;
+  const noVotes = proposal.votes?.no ?? proposal.noVotes ?? 0;
+  const totalVotes = yesVotes + noVotes;
+  const yesPercentage = totalVotes > 0 ? (yesVotes / totalVotes) * 100 : 0;
+  const noPercentage = totalVotes > 0 ? (noVotes / totalVotes) * 100 : 0;
+
+  const imageUrl = proposal.image || proposal.imageUrl || "/placeholder.svg";
+  const description = proposal.description;
+  const detailDescription = proposal.fullDescription;
+  const totalVotersCount = proposal.totalVoters ?? totalVotes;
+  const discussionsCount = proposal.discussions ?? 0;
+  const categoryName = proposal.category ?? "General";
+  const authorName = proposal.author ?? "Anonymous";
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto">
@@ -67,7 +62,7 @@ export default function ProposalDetailModal({
           {/* Header */}
           <div className="relative">
             <img
-              src={proposal.image || "/placeholder.svg"}
+              src={imageUrl || "/placeholder.svg"}
               alt={proposal.title}
               className="w-full h-64 object-cover"
             />
@@ -80,12 +75,10 @@ export default function ProposalDetailModal({
             </button>
             <div className="absolute bottom-4 left-4 text-white">
               <div className="flex items-center space-x-2 mb-2">
-                <span
-                  className={`px-2 py-1 rounded-full text-xs font-medium bg-emerald-500`}
-                >
-                  {proposal.category}
+                <span className="px-2 py-1 rounded-full text-xs font-medium bg-emerald-500">
+                  {categoryName}
                 </span>
-                <span className="text-sm opacity-80">by {proposal.author}</span>
+                <span className="text-sm opacity-80">by {authorName}</span>
               </div>
               <h1 className="text-3xl font-bold">{proposal.title}</h1>
             </div>
@@ -94,7 +87,7 @@ export default function ProposalDetailModal({
           {/* Content */}
           <div className="p-6">
             {/* Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
               <div
                 className={`p-4 rounded-lg ${
                   darkMode ? "bg-gray-700" : "bg-gray-100"
@@ -104,7 +97,9 @@ export default function ProposalDetailModal({
                   <Clock size={16} className="text-orange-500" />
                   <span className="text-sm font-medium">Time Left</span>
                 </div>
-                <div className="text-xl font-bold">{proposal.timeLeft}</div>
+                <div className="text-xl font-bold">
+                  {proposal.durationDays || "Unknown"}
+                </div>
               </div>
               <div
                 className={`p-4 rounded-lg ${
@@ -116,7 +111,7 @@ export default function ProposalDetailModal({
                   <span className="text-sm font-medium">Total Voters</span>
                 </div>
                 <div className="text-xl font-bold">
-                  {proposal.totalVoters.toLocaleString()}
+                  {totalVotersCount.toLocaleString()}
                 </div>
               </div>
               <div
@@ -132,17 +127,6 @@ export default function ProposalDetailModal({
                   {totalVotes.toLocaleString()}
                 </div>
               </div>
-              <div
-                className={`p-4 rounded-lg ${
-                  darkMode ? "bg-gray-700" : "bg-gray-100"
-                }`}
-              >
-                <div className="flex items-center space-x-2 mb-1">
-                  <MessageSquare size={16} className="text-purple-500" />
-                  <span className="text-sm font-medium">Discussions</span>
-                </div>
-                <div className="text-xl font-bold">{proposal.discussions}</div>
-              </div>
             </div>
 
             {/* Description */}
@@ -152,14 +136,31 @@ export default function ProposalDetailModal({
                   darkMode ? "text-white" : "text-gray-900"
                 }`}
               >
-                Description
+                Short Description
               </h2>
               <p
                 className={`leading-relaxed ${
                   darkMode ? "text-gray-300" : "text-gray-600"
                 }`}
               >
-                {proposal.fullDescription}
+                {description}
+              </p>
+            </div>
+
+            <div className="mb-6">
+              <h2
+                className={`text-xl font-bold mb-3 ${
+                  darkMode ? "text-white" : "text-gray-900"
+                }`}
+              >
+                Detail Description
+              </h2>
+              <p
+                className={`leading-relaxed ${
+                  darkMode ? "text-gray-300" : "text-gray-600"
+                }`}
+              >
+                {detailDescription}
               </p>
             </div>
 
@@ -179,7 +180,7 @@ export default function ProposalDetailModal({
                       <CheckCircle size={20} className="text-green-500" />
                       <span className="font-medium">Yes</span>
                       <span className="text-sm text-gray-500">
-                        ({proposal.votes.yes.toLocaleString()} votes)
+                        ({yesVotes.toLocaleString()} votes)
                       </span>
                     </div>
                     <span className="text-lg font-bold text-green-500">
@@ -204,7 +205,7 @@ export default function ProposalDetailModal({
                       <XCircle size={20} className="text-red-500" />
                       <span className="font-medium">No</span>
                       <span className="text-sm text-gray-500">
-                        ({proposal.votes.no.toLocaleString()} votes)
+                        ({noVotes.toLocaleString()} votes)
                       </span>
                     </div>
                     <span className="text-lg font-bold text-red-500">
@@ -226,24 +227,34 @@ export default function ProposalDetailModal({
             </div>
 
             {/* Vote Buttons */}
-            <div className="flex space-x-4">
-              <Button
-                onClick={() => onVote(proposal.id, "yes")}
-                variant="gradient"
-                icon={CheckCircle}
-                className="flex-1 bg-gradient-to-r from-green-500 to-emerald-600 shadow-green-500/25"
-              >
-                Vote Yes
-              </Button>
-              <Button
-                onClick={() => onVote(proposal.id, "no")}
-                variant="gradient"
-                icon={XCircle}
-                className="flex-1 bg-gradient-to-r from-red-500 to-pink-600 shadow-red-500/25"
-              >
-                Vote No
-              </Button>
-            </div>
+            {proposal.status !== "ended" && (
+              <div className="flex space-x-4">
+                <Button
+                  onClick={() => onVote(proposal.id, "yes")}
+                  variant="gradient"
+                  icon={CheckCircle}
+                  className="flex-1 bg-gradient-to-r from-green-500 to-emerald-600 shadow-green-500/25"
+                >
+                  Vote Yes
+                </Button>
+                <Button
+                  onClick={() => onVote(proposal.id, "no")}
+                  variant="gradient"
+                  icon={XCircle}
+                  className="flex-1 bg-gradient-to-r from-red-500 to-pink-600 shadow-red-500/25"
+                >
+                  Vote No
+                </Button>
+              </div>
+            )}
+
+            {proposal.status === "ended" && (
+              <div className="text-center p-4 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                <p className="text-gray-600 dark:text-gray-400">
+                  This proposal has ended and is no longer accepting votes.
+                </p>
+              </div>
+            )}
           </div>
         </div>
       </div>
