@@ -480,7 +480,7 @@ export default function SecurityPolicyPage() {
                 darkMode ? "text-white" : "text-gray-900"
               }`}
             >
-              Daftar Isi
+              Table of Contents
             </h2>
             <nav className="grid grid-cols-1 md:grid-cols-2 gap-2">
               {sections.map((section) => (
@@ -589,7 +589,7 @@ export default function SecurityPolicyPage() {
                     : "bg-white hover:bg-gray-50 text-gray-700 border border-gray-300"
                 } shadow-lg hover:shadow-xl`}
               >
-                Kembali ke Beranda
+                Back to Home
               </a>
             </div>
           </div>

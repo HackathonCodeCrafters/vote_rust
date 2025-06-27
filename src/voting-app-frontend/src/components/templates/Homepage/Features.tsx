@@ -1,4 +1,15 @@
+"use client";
+
 import { Globe, Shield, TrendingUp, Users, Vote, Zap } from "lucide-react";
+import {
+  cubicBezier,
+  motion,
+  useAnimation,
+  useInView,
+  useScroll,
+  useTransform,
+} from "motion/react";
+import { useEffect, useRef } from "react";
 import CardItem from "../../molecules/Card";
 
 interface DarkModeProps {
@@ -46,25 +57,89 @@ const features = [
 ];
 
 export default function Features({ darkMode = false }: DarkModeProps) {
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, margin: "-50px" });
+  const controls = useAnimation();
+  const { scrollY } = useScroll();
+  const y = useTransform(scrollY, [0, 1000], [0, -100]);
+
+  useEffect(() => {
+    if (isInView) {
+      controls.start("visible");
+    }
+  }, [isInView, controls]);
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.08,
+        delayChildren: 0.1,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: {
+      opacity: 0,
+      y: 30,
+    },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.5,
+        ease: cubicBezier(0.42, 0, 0.58, 1),
+      },
+    },
+  };
+
   return (
-    <div className="pt-16">
-      <h2 className="text-3xl font-bold mb-12">Why Choose VoteChain?</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+    <motion.div className="pt-16" ref={ref} style={{ y }}>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+        transition={{ duration: 0.5, ease: "easeOut" }}
+        className="text-center mb-12"
+      >
+        <h2
+          className={`text-3xl font-bold ${
+            darkMode ? "text-white" : "text-gray-900"
+          }`}
+        >
+          Why Choose VoteVerse?
+        </h2>
+        <motion.div
+          initial={{ width: 0 }}
+          animate={isInView ? { width: "100px" } : { width: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="h-1 bg-gradient-to-r from-emerald-500 to-blue-500 mx-auto mt-4 rounded-full"
+        />
+      </motion.div>
+
+      <motion.div
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+        variants={containerVariants}
+        initial="hidden"
+        animate={controls}
+      >
         {features.map((feature, index) => {
           const IconComponent = feature.icon;
           return (
-            <CardItem
-              key={index}
-              gradient={feature.gradient}
-              icon={<IconComponent size={24} className="text-white" />}
-              title={feature.title}
-              description={feature.description}
-              hover
-              darkMode={darkMode}
-            />
+            <motion.div key={index} variants={itemVariants}>
+              <CardItem
+                gradient={feature.gradient}
+                icon={<IconComponent size={24} className="text-white" />}
+                title={feature.title}
+                description={feature.description}
+                hover
+                darkMode={darkMode}
+              />
+            </motion.div>
           );
         })}
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }

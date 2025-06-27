@@ -1,4 +1,5 @@
 import Card from "@/components/atoms/Card";
+import { motion } from "framer-motion";
 import { CheckCircle, Shield, Users, Vote } from "lucide-react";
 
 interface GettingStartedStep {
@@ -14,7 +15,7 @@ const gettingStartedSteps = [
   },
   {
     step: "02",
-    title: "Connect to VoteChain",
+    title: "Connect to VoteVerse",
     description:
       "Link your Internet Identity to access the governance platform",
     icon: Vote,
@@ -38,7 +39,11 @@ export default function GettingStarted({
 }: GettingStartedStep) {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-      <div
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.6 }}
         className={`text-center mb-16 ${
           darkMode ? "text-white" : "text-gray-900"
         }`}
@@ -51,28 +56,37 @@ export default function GettingStarted({
         >
           Join the governance revolution in four simple steps
         </p>
-      </div>
+      </motion.div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
         {gettingStartedSteps.map((step, index) => {
           const IconComponent = step.icon;
           return (
-            <Card
+            <motion.div
               key={index}
-              className="p-6 text-center"
-              hover
-              darkMode={darkMode}
+              className="flex" // ← penting: buat parent flex
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: index * 0.2 }}
             >
-              <div className="w-16 h-16 rounded-full bg-gradient-to-r from-emerald-500 to-blue-600 text-white font-bold text-xl flex items-center justify-center mx-auto mb-4">
-                {step.step}
-              </div>
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-emerald-500 to-blue-600 mb-4 mx-auto flex items-center justify-center">
-                <IconComponent className="text-white" size={24} />
-              </div>
-              <h3 className="text-xl font-bold mb-2">{step.title}</h3>
-              <p className={darkMode ? "text-gray-400" : "text-gray-600"}>
-                {step.description}
-              </p>
-            </Card>
+              <Card
+                className="p-6 text-center w-full h-full" // ← penting: h-full
+                hover
+                darkMode={darkMode}
+              >
+                <div className="w-16 h-16 rounded-full bg-gradient-to-r from-emerald-500 to-blue-600 text-white font-bold text-xl flex items-center justify-center mx-auto mb-4">
+                  {step.step}
+                </div>
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-emerald-500 to-blue-600 mb-4 mx-auto flex items-center justify-center">
+                  <IconComponent className="text-white" size={24} />
+                </div>
+                <h3 className="text-xl font-bold mb-2">{step.title}</h3>
+                <p className={darkMode ? "text-gray-400" : "text-gray-600"}>
+                  {step.description}
+                </p>
+              </Card>
+            </motion.div>
           );
         })}
       </div>

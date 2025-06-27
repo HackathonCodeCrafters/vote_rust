@@ -517,7 +517,7 @@ export default function TermsOfServicePage() {
                 darkMode ? "text-white" : "text-gray-900"
               }`}
             >
-              Daftar Isi
+              Table of Contents
             </h2>
             <nav className="grid grid-cols-1 md:grid-cols-2 gap-2">
               {sections.map((section) => (

@@ -89,6 +89,11 @@ export default function MainLayout({
       />
 
       {/* Main Content */}
+      {/* <SmoothScrollWrapper
+        staggerDelay={0.1}
+        animationDistance={25}
+        duration={0.3}
+      > */}
       <main className="min-h-[calc(100vh-200px)]">
         {/* Pass darkMode and other props to children */}
         {React.isValidElement(children) && typeof children.type !== "string"
@@ -102,6 +107,7 @@ export default function MainLayout({
             })
           : children}
       </main>
+      {/* </SmoothScrollWrapper> */}
 
       {/* Footer */}
       <Footer darkMode={darkMode} />

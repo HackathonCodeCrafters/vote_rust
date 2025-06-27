@@ -33,12 +33,12 @@ export default function HomePage({
       </Helmet>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Hero Section */}
-        <Hero darkMode={darkMode} onConnectWallet={onConnectWallet} />
         <div
           className={`text-center space-y-8 ${
             darkMode ? "text-white" : "text-gray-900"
           }`}
         >
+          <Hero darkMode={darkMode} onConnectWallet={onConnectWallet} />
           <Features darkMode={darkMode} />
           <Ecosystem darkMode={darkMode} />
           <GettingStarted darkMode={darkMode} />

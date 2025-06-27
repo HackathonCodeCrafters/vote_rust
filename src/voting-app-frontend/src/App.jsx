@@ -15,7 +15,6 @@ import { useAuth } from "./hooks/useAuth";
 import { useVoting } from "./hooks/useVoting";
 import MainLayout from "./layouts/MainLayouts";
 import AboutPage from "./pages/AboutPage";
-import BlogPage from "./pages/BlogPage";
 import ContactPage from "./pages/ContactPage";
 import ActiveVote from "./pages/Dashboard/ActiveVote";
 import Dashboard from "./pages/Dashboard/HomePage";
@@ -37,7 +36,7 @@ function LoadingScreen() {
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-lg text-gray-900 dark:text-white">
-            Loading VoteChain...
+            Loading VoteVerse...
           </p>
         </div>
       </div>
@@ -53,7 +52,7 @@ function LoadingScreen() {
       <div className="text-center">
         <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
         <p className={`text-lg ${darkMode ? "text-white" : "text-gray-900"}`}>
-          Loading VoteChain...
+          Loading VoteVerse...
         </p>
       </div>
     </div>
@@ -203,7 +202,6 @@ function App() {
         <Route path="/security" element={<SecurityPolicyPage />} />
         <Route path="/cookies" element={<CookiePolicyPage />} />
         <Route path="/terms" element={<TermsOfServicePage />} />
-        <Route path="/blog" element={<BlogPage />} />
         <Route path="/contact-us" element={<ContactPage />} />
 
         {/* Catch-all route */}
