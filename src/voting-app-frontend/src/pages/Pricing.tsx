@@ -413,7 +413,7 @@ export default function PricingPage({ onConnectWallet }: PricingPageProps) {
                 darkMode ? "text-gray-300" : "text-gray-600"
               }`}
             >
-              Join thousands of organizations using VoteChain for their
+              Join thousands of organizations using VoteVerse for their
               governance needs
             </p>
             <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">

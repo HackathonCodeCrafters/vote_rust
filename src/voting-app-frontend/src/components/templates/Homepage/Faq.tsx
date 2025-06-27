@@ -1,4 +1,7 @@
+"use client";
+
 import FAQItem from "@/components/molecules/FaqItem";
+import { motion } from "framer-motion";
 
 interface FAQItemProps {
   darkMode?: boolean;
@@ -6,9 +9,9 @@ interface FAQItemProps {
 
 const faqs = [
   {
-    question: "What is VoteChain and how does it work?",
+    question: "What is VoteVerse and how does it work?",
     answer:
-      "VoteChain is a decentralized governance platform built on Internet Computer Protocol. It allows communities to create, discuss, and vote on proposals in a transparent and secure manner using blockchain technology.",
+      "VoteVerse is a decentralized governance platform built on Internet Computer Protocol. It allows communities to create, discuss, and vote on proposals in a transparent and secure manner using blockchain technology.",
   },
   {
     question: "How do I participate in voting?",
@@ -33,13 +36,18 @@ const faqs = [
   {
     question: "Are there any fees for voting?",
     answer:
-      "Voting on VoteChain has minimal fees thanks to Internet Computer's efficient architecture. Most voting actions cost fractions of a cent, making governance accessible to everyone.",
+      "Voting on VoteVerse has minimal fees thanks to Internet Computer's efficient architecture. Most voting actions cost fractions of a cent, making governance accessible to everyone.",
   },
 ];
 
 export default function Faq({ darkMode = false }: FAQItemProps) {
   return (
-    <div className={`py-16 ${darkMode ? "bg-gray-800/50" : "bg-gray-50"}`}>
+    <motion.div
+      className={`py-16 ${darkMode ? "bg-gray-800/50" : "bg-gray-50"}`}
+      initial={{ opacity: 0, y: 30 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.7, ease: [0.4, 0, 0.2, 1] }}
+    >
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div
           className={`text-center mb-16 ${
@@ -54,7 +62,7 @@ export default function Faq({ darkMode = false }: FAQItemProps) {
               darkMode ? "text-gray-300" : "text-gray-600"
             }`}
           >
-            Everything you need to know about VoteChain
+            Everything you need to know about VoteVerse
           </p>
         </div>
         <div className="space-y-4">
@@ -68,6 +76,6 @@ export default function Faq({ darkMode = false }: FAQItemProps) {
           ))}
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }

@@ -32,16 +32,28 @@ interface AdaptiveNavbarProps {
   onNavigate?: (page: string) => void;
 }
 
-// Navigation items for different states
-const guestNavLinks = [
+// Navigation Link Type
+type NavLink = {
+  name: string;
+  href: string;
+  icon: React.ComponentType<any>;
+  external?: boolean;
+};
+
+const guestNavLinks: NavLink[] = [
   { name: "Home", href: "", icon: Home },
   { name: "Pricing", href: "pricing", icon: DollarSign },
   { name: "About", href: "about", icon: Info },
   { name: "Contact Us", href: "contact-us", icon: Mail },
-  { name: "Blog", href: "blog", icon: BookOpen },
+  {
+    name: "Blog",
+    href: "https://blog-voteverse.netlify.app/blog",
+    icon: BookOpen,
+    external: true,
+  },
 ];
 
-const authenticatedNavLinks = [
+const authenticatedNavLinks: NavLink[] = [
   { name: "Dashboard", href: "dashboard", icon: Home },
   { name: "Active Votes", href: "votes", icon: Vote },
 ];
@@ -61,10 +73,16 @@ export default function AdaptiveNavbar({
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navLinks = isAuthenticated ? authenticatedNavLinks : guestNavLinks;
 
-  const handleNavigation = (href: string, name: string) => {
+  const handleNavigation = (href: string) => {
+    if (href.startsWith("http")) {
+      window.open(href, "_blank");
+      return;
+    }
+
     if (onNavigate) {
       onNavigate(href);
     }
+
     setIsMenuOpen(false);
   };
 
@@ -84,18 +102,32 @@ export default function AdaptiveNavbar({
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          {/* Logo */}
           <Logo name="VoteVerse" imageSrc={VoteVerse} showPulse={false} />
 
-          {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
             {navLinks.map((link) => {
               const IconComponent = link.icon;
               const isActive = currentPage === link.href;
-              return (
+
+              return link.external ? (
+                <a
+                  key={link.name}
+                  href={link.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`flex items-center space-x-2 px-3 py-2 rounded-lg transition-all duration-200 hover:scale-105 ${
+                    darkMode
+                      ? "text-gray-300 hover:text-white hover:bg-gray-800"
+                      : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                  }`}
+                >
+                  <IconComponent size={16} />
+                  <span className="font-medium">{link.name}</span>
+                </a>
+              ) : (
                 <button
                   key={link.name}
-                  onClick={() => handleNavigation(link.href, link.name)}
+                  onClick={() => handleNavigation(link.href)}
                   className={`flex items-center space-x-2 px-3 py-2 rounded-lg transition-all duration-200 hover:scale-105 ${
                     isActive
                       ? darkMode
@@ -113,9 +145,7 @@ export default function AdaptiveNavbar({
             })}
           </div>
 
-          {/* Right Side Controls */}
           <div className="flex items-center space-x-4">
-            {/* Dark Mode Toggle */}
             <button
               onClick={toggleDarkMode}
               className={`p-2 rounded-lg transition-all duration-200 hover:scale-110 ${
@@ -127,7 +157,6 @@ export default function AdaptiveNavbar({
               {darkMode ? <Sun size={20} /> : <Moon size={20} />}
             </button>
 
-            {/* Authentication Button */}
             {!isAuthenticated ? (
               <Button onClick={onLogin} variant="gradient" icon={Wallet}>
                 <span className="hidden sm:inline">Connect Identity</span>
@@ -160,7 +189,6 @@ export default function AdaptiveNavbar({
               </div>
             )}
 
-            {/* Mobile Menu Button */}
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               className={`md:hidden p-2 rounded-lg ${
@@ -174,7 +202,6 @@ export default function AdaptiveNavbar({
           </div>
         </div>
 
-        {/* Mobile Menu */}
         {isMenuOpen && (
           <div
             className={`md:hidden border-t ${
@@ -182,14 +209,29 @@ export default function AdaptiveNavbar({
             }`}
           >
             <div className="px-2 pt-2 pb-3 space-y-1">
-              {/* Navigation Links - Mobile */}
               {navLinks.map((link) => {
                 const IconComponent = link.icon;
                 const isActive = currentPage === link.href;
-                return (
+
+                return link.external ? (
+                  <a
+                    key={link.name}
+                    href={link.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors text-left ${
+                      darkMode
+                        ? "text-gray-300 hover:text-white hover:bg-gray-800"
+                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                    }`}
+                  >
+                    <IconComponent size={18} />
+                    <span className="font-medium">{link.name}</span>
+                  </a>
+                ) : (
                   <button
                     key={link.name}
-                    onClick={() => handleNavigation(link.href, link.name)}
+                    onClick={() => handleNavigation(link.href)}
                     className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors text-left ${
                       isActive
                         ? darkMode

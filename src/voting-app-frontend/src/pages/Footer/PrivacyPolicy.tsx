@@ -213,7 +213,7 @@ export default function PrivacyPolicyPage() {
                 className={darkMode ? "text-gray-400" : "text-gray-500"}
               />
               <span className={darkMode ? "text-gray-400" : "text-gray-500"}>
-                Last updated: 4 Juni 2025
+                Last updated: 4 June 2025
               </span>
             </div>
             <p
@@ -221,10 +221,8 @@ export default function PrivacyPolicyPage() {
                 darkMode ? "text-gray-300" : "text-gray-600"
               }`}
             >
-              Selamat datang di VoteVerse! Privasi Anda penting bagi kami.
-              Kebijakan Privasi ini menjelaskan bagaimana kami mengumpulkan,
-              menggunakan, dan melindungi informasi Anda saat menggunakan
-              platform VoteVerse.
+              Welcome to VoteVerse! Your privacy is important to us.
+              This Privacy Policy explains how we collect, use, and protect your information while using the VoteVerse platform.
             </p>
           </div>
 
@@ -241,7 +239,7 @@ export default function PrivacyPolicyPage() {
                 darkMode ? "text-white" : "text-gray-900"
               }`}
             >
-              Daftar Isi
+              Table of Contents
             </h2>
             <nav className="grid grid-cols-1 md:grid-cols-2 gap-2">
               {sections.map((section) => (
@@ -321,13 +319,12 @@ export default function PrivacyPolicyPage() {
                 darkMode ? "text-white" : "text-gray-900"
               }`}
             >
-              Masih Ada Pertanyaan?
+              Still Have Questions?
             </h3>
             <p
               className={`mb-6 ${darkMode ? "text-gray-300" : "text-gray-600"}`}
             >
-              Tim kami siap membantu Anda memahami kebijakan privasi kami dengan
-              lebih baik.
+              Our team is ready to help you better understand our privacy policy.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <a
@@ -339,7 +336,7 @@ export default function PrivacyPolicyPage() {
                 } shadow-lg hover:shadow-xl`}
               >
                 <Mail size={20} className="mr-2" />
-                Hubungi Support
+                Contact Support
               </a>
               <a
                 href="/"
@@ -349,7 +346,7 @@ export default function PrivacyPolicyPage() {
                     : "bg-white hover:bg-gray-50 text-gray-700 border border-gray-300"
                 } shadow-lg hover:shadow-xl`}
               >
-                Kembali ke Beranda
+                Back to Home
               </a>
             </div>
           </div>

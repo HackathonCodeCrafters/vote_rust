@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { motion } from "framer-motion";
 import { ChevronDown } from "lucide-react";
+import { useState } from "react";
 
 interface FAQItemProps {
   question: string;
@@ -17,8 +18,10 @@ export default function FAQItem({
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div
-      className={`border rounded-lg ${
+    <motion.div
+      layout
+      initial={{ borderRadius: 8 }}
+      className={`border rounded-lg transition-all ${
         darkMode ? "border-gray-700" : "border-gray-200"
       }`}
     >
@@ -29,26 +32,39 @@ export default function FAQItem({
         }`}
       >
         <span
-          className={`font-medium ${darkMode ? "text-white" : "text-gray-900"}`}
+          className={`font-medium text-base ${
+            darkMode ? "text-white" : "text-gray-900"
+          }`}
         >
           {question}
         </span>
-        <ChevronDown
-          size={20}
-          className={`transition-transform ${isOpen ? "rotate-180" : ""} ${
-            darkMode ? "text-gray-400" : "text-gray-600"
-          }`}
-        />
+        <motion.div
+          animate={{ rotate: isOpen ? 180 : 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          <ChevronDown
+            size={20}
+            className={`${
+              darkMode ? "text-gray-400" : "text-gray-600"
+            } transition-transform duration-300`}
+          />
+        </motion.div>
       </button>
+
       {isOpen && (
-        <div
+        <motion.div
+          layout
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.3 }}
           className={`px-6 pb-4 ${
             darkMode ? "text-gray-300" : "text-gray-600"
           }`}
         >
           <p>{answer}</p>
-        </div>
+        </motion.div>
       )}
-    </div>
+    </motion.div>
   );
 }
