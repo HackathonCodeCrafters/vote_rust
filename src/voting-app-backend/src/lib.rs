@@ -47,7 +47,7 @@ struct Proposal {
     pub author: Option<String>, 
     pub category: Option<String>, 
     pub discussions: Option<u32>, 
-    pub voters: Option<HashSet<Principal>>
+    pub voters: HashSet<Principal>
 }
 
 
@@ -120,7 +120,7 @@ fn add_proposal(title: String, description: String, image_url: Option<String>, d
             author,
             category,
             discussions: None,
-            voters: Some(HashSet::new()),
+            voters: HashSet::new(),
         };
 
         s.proposals.insert(id.clone(), proposal);
@@ -151,7 +151,7 @@ fn vote_proposal(id: String, choice: VoteChoice) -> VoteResult {
         let mut s = state.borrow_mut();
         if let Some(proposal) = s.proposals.get_mut(&id) {
 
-            let voters = proposal.voters.get_or_insert(HashSet::new());
+            let voters = &mut proposal.voters;
             if voters.contains(&caller) {
                 return VoteResult::Err("You have already voted.".to_string());
             }

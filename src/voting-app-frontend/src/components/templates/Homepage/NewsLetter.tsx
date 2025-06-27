@@ -1,5 +1,8 @@
+"use client";
+
 import Button from "@/components/atoms/Button";
 import Card from "@/components/atoms/Card";
+import { motion } from "framer-motion";
 import { Mail } from "lucide-react";
 import { useState } from "react";
 
@@ -17,7 +20,6 @@ export default function NewsLetter({
 
   const handleNewsletterSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
     if (email) {
       setIsSubscribed(true);
       setEmail("");
@@ -26,7 +28,12 @@ export default function NewsLetter({
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <motion.div
+      className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16"
+      initial={{ opacity: 0, y: 40, scale: 0.95 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      transition={{ duration: 0.6, ease: [0.42, 0, 0.58, 1] }}
+    >
       <Card className="p-8 md:p-12 text-center" darkMode={darkMode}>
         <div
           className={`space-y-6 ${darkMode ? "text-white" : "text-gray-900"}`}
@@ -94,6 +101,6 @@ export default function NewsLetter({
           </div>
         </div>
       </Card>
-    </div>
+    </motion.div>
   );
 }
