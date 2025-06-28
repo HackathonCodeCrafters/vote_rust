@@ -15,6 +15,8 @@ import { useEffect, useState } from "react";
 import { Helmet } from "react-helmet";
 import { voting_app_backend as backend } from "../../../../declarations/voting-app-backend";
 import { useDarkMode } from "../../context/DarkModeContext";
+import { Principal } from "@dfinity/candid/lib/cjs/idl";
+import { useAuth } from "@/hooks/useAuth";
 
 interface DashboardProps {
   onCreateProposal: () => void;
@@ -55,6 +57,7 @@ export default function Dashboard({ onCreateProposal }: DashboardProps) {
     useState<Proposal.Proposal | null>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const {principal} = useAuth();
 
   // Pagination hook
   const {
@@ -171,7 +174,7 @@ export default function Dashboard({ onCreateProposal }: DashboardProps) {
     try {
       const voteChoice = vote === "yes" ? { Yes: null } : { No: null };
       const proposalIdBigInt = String(proposalId);
-      const result = await backend.vote_proposal(proposalIdBigInt, voteChoice);
+      const result = await backend.vote_proposal(proposalIdBigInt, principal, voteChoice);
 
       if ("Ok" in result) {
         console.log(`Voted ${vote} on proposal ${proposalId}`);

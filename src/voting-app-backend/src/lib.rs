@@ -7,6 +7,8 @@ use serde::{Deserialize, Serialize};
 use ic_cdk::api;
 use sha2::{Digest, Sha256};
 
+
+
 fn generate_deterministic_id() -> String {
     let principal = api::caller().to_text();
     let timestamp = api::time().to_string();
@@ -144,15 +146,24 @@ enum VoteResult {
 }
 
 #[update]
-fn vote_proposal(id: String, choice: VoteChoice) -> VoteResult {
+fn vote_proposal(id: String, user_principal: String, choice: VoteChoice) -> VoteResult {
     let caller = ic_cdk::api::caller();
+
+    ic_cdk::println!("id {} ", id);
+    ic_cdk::println!("User with principal {} ", caller.to_text());
+
+    let principal = match Principal::from_text(&user_principal) {
+        Ok(p) => p,
+        Err(_) => return VoteResult::Err("Invalid principal".to_string()),
+    };
+
 
     STATE.with(|state| {
         let mut s = state.borrow_mut();
         if let Some(proposal) = s.proposals.get_mut(&id) {
 
             let voters = &mut proposal.voters;
-            if voters.contains(&caller) {
+            if voters.contains(&principal) {
                 return VoteResult::Err("You have already voted.".to_string());
             }
 
@@ -177,7 +188,7 @@ fn vote_proposal(id: String, choice: VoteChoice) -> VoteResult {
             proposal.total_voters = Some(proposal.total_voters.unwrap_or(0) + 1);
 
 
-            voters.insert(caller);
+            voters.insert(principal.clone());
 
             VoteResult::Ok
         } else {
