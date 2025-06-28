@@ -9,14 +9,13 @@ import StatCard from "@/components/molecules/StatCard";
 import CreateProposalModal from "@/components/organism/proposal/CreateProposalCard";
 import ProposalDetailModal from "@/components/organism/proposal/DetailProposalCard";
 import ProposalCard from "@/components/organism/proposal/ProposalCard";
+import { useAuth } from "@/hooks/useAuth";
 import { usePagination } from "@/hooks/usePagination";
 import { Award, Plus, TrendingUp, Users, Vote } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Helmet } from "react-helmet";
 import { voting_app_backend as backend } from "../../../../declarations/voting-app-backend";
 import { useDarkMode } from "../../context/DarkModeContext";
-import { Principal } from "@dfinity/candid/lib/cjs/idl";
-import { useAuth } from "@/hooks/useAuth";
 
 interface DashboardProps {
   onCreateProposal: () => void;
@@ -57,7 +56,7 @@ export default function Dashboard({ onCreateProposal }: DashboardProps) {
     useState<Proposal.Proposal | null>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const {principal} = useAuth();
+  const { principal } = useAuth();
 
   // Pagination hook
   const {
@@ -170,11 +169,32 @@ export default function Dashboard({ onCreateProposal }: DashboardProps) {
     }
   };
 
+  // Fixed handleVote function for your Dashboard component
+
+  // Fixed handleVote function for your Dashboard component
+
   const handleVote = async (proposalId: string, vote: "yes" | "no") => {
     try {
-      const voteChoice = vote === "yes" ? { Yes: null } : { No: null };
-      const proposalIdBigInt = String(proposalId);
-      const result = await backend.vote_proposal(proposalIdBigInt, principal, voteChoice);
+      if (!principal) {
+        alert("Please connect your wallet first");
+        return;
+      }
+
+      const proposalIdString = String(proposalId);
+      const userPrincipal = principal.toString(); // pastikan ini string
+      const voteChoices = vote === "yes" ? { Yes: null } : { No: null };
+
+      console.log("Voting with:", {
+        proposalId: proposalIdString,
+        userPrincipal,
+        choice: voteChoices,
+      });
+
+      const result = await backend.vote_proposal(
+        proposalIdString,
+        userPrincipal,
+        voteChoices
+      );
 
       if ("Ok" in result) {
         console.log(`Voted ${vote} on proposal ${proposalId}`);
@@ -186,7 +206,9 @@ export default function Dashboard({ onCreateProposal }: DashboardProps) {
       }
     } catch (err) {
       console.error("Voting error:", err);
-      alert("Something went wrong during voting.");
+      alert(
+        "Something went wrong during voting. Please check the console for details."
+      );
     }
   };
 

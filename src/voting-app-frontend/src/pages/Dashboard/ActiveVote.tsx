@@ -7,12 +7,12 @@ import PaginationInfo from "@/components/molecules/PaginationInfo";
 import ProposalDetailModal from "@/components/organism/proposal/DetailProposalCard";
 import ProposalCard from "@/components/organism/proposal/ProposalCard";
 import { useDarkMode } from "@/context/DarkModeContext";
+import { useAuth } from "@/hooks/useAuth";
 import { usePagination } from "@/hooks/usePagination";
 import { ArrowUpDown, ChevronDown, Filter, SearchIcon, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { Helmet } from "react-helmet";
 import { voting_app_backend as backend } from "../../../../declarations/voting-app-backend";
-import { useAuth } from "@/hooks/useAuth";
 
 export default function ActiveVote() {
   const { darkMode } = useDarkMode();
@@ -26,8 +26,7 @@ export default function ActiveVote() {
     useState<Proposal.Proposal | null>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const {principal} = useAuth();
-  
+  const { principal } = useAuth();
 
   const categories = [
     { name: "All", count: 0, color: "from-gray-500 to-gray-600" },
@@ -416,7 +415,11 @@ export default function ActiveVote() {
   const handleVote = async (proposalId: string, vote: "yes" | "no") => {
     try {
       const voteChoice = vote === "yes" ? { Yes: null } : { No: null };
-      const result = await backend.vote_proposal(proposalId, principal, voteChoice);
+      const result = await backend.vote_proposal(
+        proposalId,
+        principal,
+        voteChoice
+      );
 
       if ("Ok" in result) {
         console.log(`Voted ${vote} on proposal ${proposalId}`);
