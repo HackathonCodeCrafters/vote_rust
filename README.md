@@ -77,10 +77,20 @@ dfx canister install --mode=upgrade voting-app-backend
 ```bash
 
 # without image
-dfx canister call voting-app-backend add_proposal '("Judul", "Deskripsi", null, 14, null, null, null, null)'
+dfx canister call voting-app-backend add_proposal '("Judul", "Deskripsi", null, 14, null, null, null, null, null)'
 
 # with image url and image covert base64
-dfx canister call voting-app-backend add_proposal '("Judul", "Deskripsi", opt "https://foo.bar/img.png", 14, opt "Full Deskripsi", opt "Categori", opt "iVBORw0KGgoAAAANSUhEUgAABVgAAAFuCAYAAA", null)'
+dfx canister call voting-app-backend add_proposal '(
+"Judul",
+"Deskripsi",
+opt "https://foo.bar/img.png", 
+14, 
+opt "Full Deskripsi", 
+opt "Categori", 
+opt "iVBORw0KGgoAAAANSUhEUgAABVgAAAFuCAYAAA", 
+null,
+opt "user"
+)'
 
 
 ```
@@ -118,4 +128,9 @@ dfx canister call voting-app-backend get_proposal_stats
 
 ```bash
 dfx canister call voting-app-backend delete_proposal '(1)'
+```
+
+### get proposal by userid 
+```bash
+dfx canister call voting-app-backend get_proposal_by_user_id  '("user")'
 ```

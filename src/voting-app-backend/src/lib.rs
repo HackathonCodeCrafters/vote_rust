@@ -49,7 +49,8 @@ struct Proposal {
     pub author: Option<String>, 
     pub category: Option<String>, 
     pub discussions: Option<u32>, 
-    pub voters: HashSet<Principal>
+    pub voters: HashSet<Principal>,
+    pub user: Option<String>, 
 }
 
 
@@ -95,7 +96,7 @@ fn post_upgrade() {
 
 
 #[update]
-fn add_proposal(title: String, description: String, image_url: Option<String>, duration_days: u32, full_description : Option<String>, category: Option<String>, image: Option<String>, author: Option<String>) -> String {
+fn add_proposal(title: String, description: String, image_url: Option<String>, duration_days: u32, full_description : Option<String>, category: Option<String>, image: Option<String>, author: Option<String>, user: Option<String>) -> String {
     STATE.with(|state| {
         let mut s = state.borrow_mut();
 
@@ -123,6 +124,7 @@ fn add_proposal(title: String, description: String, image_url: Option<String>, d
             category,
             discussions: None,
             voters: HashSet::new(),
+            user,
         };
 
         s.proposals.insert(id.clone(), proposal);
@@ -198,9 +200,6 @@ fn vote_proposal(id: String, user_principal: String, choice: VoteChoice) -> Vote
 }
 
 
-
-
-
 #[query]
 fn get_proposals() -> Vec<Proposal> {
     STATE.with(|state| state.borrow().proposals.values().cloned().collect())
@@ -250,5 +249,17 @@ fn delete_proposal(id: String) -> VoteResult {
         }
     })
 }
+
+
+#[query]
+fn get_proposal_by_user_id(user: String) -> Vec<Proposal> {
+    STATE.with(|state| {
+        state.borrow().proposals.values()
+            .filter(|p| p.user.as_ref().map(|u| u == &user).unwrap_or(false))
+            .cloned()
+            .collect()
+    })
+}
+
 
 
