@@ -22,7 +22,7 @@ type Proposal = record {
   category: opt text;
   discussions: opt nat32;
   voters: opt vec principal;
-  user: opt text;
+  user_id: opt text;
 };
 
 
