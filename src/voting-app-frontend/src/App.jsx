@@ -9,21 +9,23 @@ import {
   Routes,
   useNavigate,
 } from "react-router-dom";
-import DarkModeScript from "./components/atoms/DarkModeScript";
 import { DarkModeProvider, useDarkMode } from "./context/DarkModeContext";
+import AboutPage from "./features/About/pages/AboutPage.js";
+import ActiveVote from "./features/ActiveVotes/pages/ActiveVote.js";
+import ContactPage from "./features/Contact/ContactPage.js";
+import Dashboard from "./features/Dashboard/pages/HomePage.js";
+import CookiePolicyPage from "./features/Footer/pages/CookiePolicy.js";
+import PrivacyPolicyPage from "./features/Footer/pages/PrivacyPolicy.js";
+import SecurityPolicyPage from "./features/Footer/pages/SecurityPolicy.js";
+import TermsOfServicePage from "./features/Footer/pages/Terms.js";
+import HomePage from "./features/HomeLanding/pages/HomePage.tsx";
+import PricingPage from "./features/Pricing/pages/Pricing.js";
+import ProfilePage from "./features/Profile/pages/Profile.js";
+import ProposalDetailPage from "./features/Proposal/components/ProposalDetailPage";
 import { useAuth } from "./hooks/useAuth";
 import { useVoting } from "./hooks/useVoting";
 import MainLayout from "./layouts/MainLayouts";
-import AboutPage from "./pages/AboutPage";
-import ContactPage from "./pages/ContactPage";
-import ActiveVote from "./pages/Dashboard/ActiveVote";
-import Dashboard from "./pages/Dashboard/HomePage";
-import CookiePolicyPage from "./pages/Footer/CookiePolicy";
-import PrivacyPolicyPage from "./pages/Footer/PrivacyPolicy";
-import SecurityPolicyPage from "./pages/Footer/SecurityPolicy";
-import TermsOfServicePage from "./pages/Footer/Terms";
-import HomePage from "./pages/HomePage";
-import PricingPage from "./pages/Pricing";
+import DarkModeScript from "./shared/components/DarkModeScript.js";
 
 // Loading screen component
 function LoadingScreen() {
@@ -114,11 +116,11 @@ function App() {
   const handleCreateProposal = () => {
     if (!auth.isAuthenticated) {
       alert(
-        "Please connect your Internet Identity first to create a proposal!"
+        "Please connect your Internet Identity first to create a Proposal!"
       );
       return;
     }
-    console.log("Opening create proposal modal...");
+    console.log("Opening create Proposal modal...");
   };
 
   // Show loading screen while auth or dark mode is loading
@@ -193,6 +195,26 @@ function App() {
               <Navigate to="/" />
             )
           }
+        />
+
+        <Route
+          path="/proposal/:principal_id/:proposalName"
+          element={
+            auth.isAuthenticated ? (
+              <ProposalDetailPage
+                backend={auth.backend}
+                principal={auth.principal}
+                onVote={voting.voteFor}
+              />
+            ) : (
+              <Navigate to="/" />
+            )
+          }
+        />
+
+        <Route
+          path="/profile"
+          element={auth.isAuthenticated ? <ProfilePage /> : <Navigate to="/" />}
         />
 
         <Route path="/about" element={<AboutPage />} />

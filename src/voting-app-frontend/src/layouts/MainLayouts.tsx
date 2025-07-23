@@ -1,7 +1,7 @@
 "use client";
 
-import Footer from "@/components/organism/Footer";
-import AdaptiveNavbar from "@/components/organism/menu/Navbar";
+import Footer from "@/shared/components/Footer";
+import AdaptiveNavbar from "@/shared/components/Navbar";
 import React, { type ReactNode } from "react";
 import { useDarkMode } from "../context/DarkModeContext";
 
@@ -29,11 +29,11 @@ export default function MainLayout({
   const handleCreateProposal = () => {
     if (!isWalletConnected) {
       alert(
-        "Please connect your Internet Identity first to create a proposal!"
+        "Please connect your Internet Identity first to create a Proposal!"
       );
       return;
     }
-    console.log("Opening create proposal modal...");
+    console.log("Opening create Proposal modal...");
   };
 
   const handleNavigation = (page: string) => {
