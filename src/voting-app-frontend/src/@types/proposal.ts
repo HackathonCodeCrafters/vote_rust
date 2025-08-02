@@ -1,6 +1,8 @@
-// @/@types/proposal.ts
+// @/@types/Proposal.ts
 
 export interface Proposal {
+  author_principal: string;
+  principalId: string;
   id: string;
   title: string;
   description: string;
@@ -14,7 +16,7 @@ export interface Proposal {
   status?: string;
   totalVoters?: number;
   // Additional fields for UI compatibility
-  fullDescription?: string;
+  full_description?: string;
   image?: string;
   votes?: { yes: number; no: number };
   author?: string;
